@@ -3,9 +3,6 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - 新建文件夹/**
-    # 隔离目录：旧音乐模块与 Asasfans 残留，留着只为可回溯，不参与编译与分析
-    - _deprecated/**
-    - _incoming_asasfans_20261106/**
 
 linter:
   rules:
