@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 深色模式下的启动底色，与 KafunoTheme.dark() 的 scaffoldBackgroundColor 一致。 -->
+<resources>
+    <color name="launch_bg">#FF121212</color>
+
+    <!-- 桌面小组件底板（深色）：与 Flutter 侧 KanoPalette 的深色值对齐 -->
+    <color name="widget_bg">#F21E1E1E</color>
+
+    <!-- 逐值对齐鸿蒙 entry/src/main/resources/dark/element/color.json -->
+    <color name="schedule_card_text_primary">#FFF5F5F7</color>
+    <color name="schedule_card_text_secondary">#99F5F5F7</color>
+    <color name="schedule_card_text_tertiary">#66F5F5F7</color>
+    <color name="schedule_card_divider">#1FF5F5F7</color>
+
+    <color name="fans_card_text_primary">#FFF5F5F7</color>
+    <color name="fans_card_text_secondary">#99F5F5F7</color>
+    <color name="fans_card_text_tertiary">#66F5F5F7</color>
+
+    <color name="widget_tag_text">#FFFFFFFF</color>
+
+    <color name="widget_bili_pink">#FFFB7299</color>
+    <color name="widget_diff_up">#FFE8413C</color>
+    <color name="widget_diff_down">#FF31A84B</color>
+    <color name="widget_diff_flat">#FF8A8F99</color>
+    <color name="widget_avatar_wash">#24FB7299</color>
+</resources>

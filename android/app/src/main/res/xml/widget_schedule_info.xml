@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 日程卡片声明。2x4 默认出列表，拉高到 4x4 自动换成月历（见 ScheduleWidgetProvider）。
+     尺寸按小米《小部件技术规范》3.2 节的标准规格取值：4x2 = 300dp x 110dp、4x4 = 300dp x 250dp。
+     minWidth/minHeight 只决定占几格，不决定最终像素（规范 FAQ 明确说过这点）。
+     updatePeriodMillis 在小米上不起作用（小米去掉了系统定时刷新，改用曝光刷新 + 主动刷新），
+     这里保留是给原生 Android 桌面兜底。 -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="300dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:maxResizeWidth="420dp"
+    android:maxResizeHeight="320dp"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen"
+    android:initialLayout="@layout/widget_schedule_list"
+    android:initialKeyguardLayout="@layout/widget_schedule_list"
+    android:previewLayout="@layout/widget_schedule_list"
+    android:previewImage="@drawable/widget_preview_schedule"
+    android:description="@string/widget_schedule_desc" />

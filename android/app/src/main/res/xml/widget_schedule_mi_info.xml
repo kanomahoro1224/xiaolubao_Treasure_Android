@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 小米小部件（澎湃 OS）版日程卡配置。与纯原生版 widget_schedule_info.xml 分开，
+     方便将来上架审核时单独调整尺寸/预览，不影响「安卓小部件」那一套。
+     尺寸按小米《小部件技术规范》3.2：4x2 = 300dp x 110dp、4x4 = 300dp x 250dp。 -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="300dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:maxResizeWidth="420dp"
+    android:maxResizeHeight="320dp"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:initialLayout="@layout/widget_schedule_list"
+    android:initialKeyguardLayout="@layout/widget_schedule_list"
+    android:previewLayout="@layout/widget_schedule_list"
+    android:previewImage="@drawable/widget_preview_schedule"
+    android:description="@string/widget_schedule_desc" />

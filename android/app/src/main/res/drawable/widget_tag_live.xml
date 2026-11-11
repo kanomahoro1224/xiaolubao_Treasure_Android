@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 即将开始行尾的类型胶囊底（KanoKind.live），文字 11sp 白字 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FFC2410C" />
+    <corners android:radius="6dp" />
+</shape>

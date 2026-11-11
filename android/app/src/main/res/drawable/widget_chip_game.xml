@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 月历格子里的每日类型标签底（KanoKind.game），文字 9sp 白字 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FF5F3DC4" />
+    <corners android:radius="4dp" />
+</shape>

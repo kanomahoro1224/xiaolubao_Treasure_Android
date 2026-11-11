@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 头像未取到时的占位圆：与鸿蒙 Circle().fill('#24FB7299') 同色 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/widget_avatar_wash" />
+</shape>

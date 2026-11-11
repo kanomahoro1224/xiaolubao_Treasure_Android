@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 日程卡（2x4 列表态）：逐行对齐鸿蒙 ScheduleCard.ListCard()。
+     padding 14/14/12/12、header 14sp secondary、行 = 8dp 色点 + 标题 15sp / 元信息 12sp +
+     11sp 白字类型胶囊，行间 1dp 分割线，最多 3 条（鸿蒙 SCHEDULE_LIST_MAX_ITEMS = 3）。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_panel"
+    android:paddingStart="14dp"
+    android:paddingEnd="14dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
+
+    <!-- status != ok 时整卡只显示这一行居中文案（鸿蒙 build() 的第一分支） -->
+    <LinearLayout
+        android:id="@+id/sw_status"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/sw_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="11sp"
+            android:textColor="@color/schedule_card_text_secondary" />
+    </LinearLayout>
+
+    <!-- 有日程：3 行等分剩余高度，header 与行同属这一层 -->
+    <LinearLayout
+        android:id="@+id/sw_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/sw_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textSize="14sp"
+            android:textColor="@color/schedule_card_text_secondary" />
+
+        <LinearLayout
+            android:id="@+id/sw_row0"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <!-- Row().width(8).height(8).borderRadius(4)：8dp 实心圆点 -->
+            <ImageView
+                android:id="@+id/sw_dot0"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/widget_dot_flat"
+                android:contentDescription="@null" />
+
+            <!-- Column({space:3}) + layoutWeight(1) -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/sw_title0"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="15sp"
+                    android:textColor="@color/schedule_card_text_primary" />
+
+                <TextView
+                    android:id="@+id/sw_meta0"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="12sp"
+                    android:textColor="@color/schedule_card_text_secondary" />
+            </LinearLayout>
+
+            <!-- 11sp Medium 白字 + 类型色底 radius6 + padding 7/3 -->
+            <TextView
+                android:id="@+id/sw_tag0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/widget_tag_flat"
+                android:paddingStart="7dp"
+                android:paddingEnd="7dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/widget_tag_text" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/sw_div0"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/schedule_card_divider" />
+
+        <LinearLayout
+            android:id="@+id/sw_row1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <!-- Row().width(8).height(8).borderRadius(4)：8dp 实心圆点 -->
+            <ImageView
+                android:id="@+id/sw_dot1"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/widget_dot_flat"
+                android:contentDescription="@null" />
+
+            <!-- Column({space:3}) + layoutWeight(1) -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/sw_title1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="15sp"
+                    android:textColor="@color/schedule_card_text_primary" />
+
+                <TextView
+                    android:id="@+id/sw_meta1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="12sp"
+                    android:textColor="@color/schedule_card_text_secondary" />
+            </LinearLayout>
+
+            <!-- 11sp Medium 白字 + 类型色底 radius6 + padding 7/3 -->
+            <TextView
+                android:id="@+id/sw_tag1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/widget_tag_flat"
+                android:paddingStart="7dp"
+                android:paddingEnd="7dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/widget_tag_text" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/sw_div1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/schedule_card_divider" />
+
+        <LinearLayout
+            android:id="@+id/sw_row2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <!-- Row().width(8).height(8).borderRadius(4)：8dp 实心圆点 -->
+            <ImageView
+                android:id="@+id/sw_dot2"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/widget_dot_flat"
+                android:contentDescription="@null" />
+
+            <!-- Column({space:3}) + layoutWeight(1) -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/sw_title2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="15sp"
+                    android:textColor="@color/schedule_card_text_primary" />
+
+                <TextView
+                    android:id="@+id/sw_meta2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="12sp"
+                    android:textColor="@color/schedule_card_text_secondary" />
+            </LinearLayout>
+
+            <!-- 11sp Medium 白字 + 类型色底 radius6 + padding 7/3 -->
+            <TextView
+                android:id="@+id/sw_tag2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/widget_tag_flat"
+                android:paddingStart="7dp"
+                android:paddingEnd="7dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/widget_tag_text" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

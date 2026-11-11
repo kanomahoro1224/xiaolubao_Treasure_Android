@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 同 drawable/launch_background.xml，v21 只是历史上为了用 ?android:colorBackground
+     单独建的一份；现在改成显式色值，浅深色分别走 values / values-night。 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/launch_bg" />
+</layer-list>

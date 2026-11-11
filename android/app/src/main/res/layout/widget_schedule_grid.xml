@@ -1,0 +1,3133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 日程卡（4x4 月历态）：逐行对齐鸿蒙 ScheduleCard.MonthGrid()。
+     padding 10/10/12/10；月份 26sp Bold、年份 12sp 偏移 8/6；星期 12sp（周末 Medium）
+     marginTop6/bottom4；42 格等宽，日期 14sp，今天 26x26 主题色圆 + 白字 Bold。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_panel"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="10dp">
+
+    <!-- status != ok 时整卡只显示这一行居中文案（鸿蒙 build() 的第一分支） -->
+    <LinearLayout
+        android:id="@+id/sw_status"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/sw_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="11sp"
+            android:textColor="@color/schedule_card_text_secondary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sw_grid"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/sw_month_big"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="@color/schedule_card_text_primary" />
+
+            <TextView
+                android:id="@+id/sw_year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="6dp"
+                android:maxLines="1"
+                android:textSize="12sp"
+                android:textColor="@color/schedule_card_text_secondary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="4dp"
+            android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/sw_wd0"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/schedule_card_text_secondary" />
+        <TextView
+            android:id="@+id/sw_wd1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/schedule_card_text_secondary" />
+        <TextView
+            android:id="@+id/sw_wd2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/schedule_card_text_secondary" />
+        <TextView
+            android:id="@+id/sw_wd3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/schedule_card_text_secondary" />
+        <TextView
+            android:id="@+id/sw_wd4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/schedule_card_text_secondary" />
+        <TextView
+            android:id="@+id/sw_wd5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/schedule_card_text_secondary" />
+        <TextView
+            android:id="@+id/sw_wd6"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/schedule_card_text_secondary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <!-- 格子 0：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg0"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d0"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c0a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c0b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 1：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg1"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d1"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c1a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c1b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 2：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg2"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d2"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c2a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c2b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 3：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg3"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d3"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c3a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c3b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 4：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg4"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d4"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c4a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c4b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 5：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg5"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d5"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c5a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c5b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 6：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg6"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d6"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c6a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c6b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <!-- 格子 7：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg7"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d7"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c7a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c7b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 8：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg8"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d8"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c8a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c8b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 9：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg9"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d9"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c9a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c9b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 10：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg10"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d10"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c10a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c10b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 11：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg11"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d11"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c11a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c11b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 12：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg12"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d12"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c12a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c12b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 13：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg13"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d13"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c13a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c13b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <!-- 格子 14：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg14"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d14"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c14a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c14b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 15：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg15"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d15"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c15a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c15b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 16：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg16"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d16"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c16a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c16b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 17：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg17"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d17"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c17a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c17b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 18：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg18"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d18"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c18a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c18b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 19：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg19"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d19"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c19a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c19b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 20：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg20"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d20"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c20a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c20b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <!-- 格子 21：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg21"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d21"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c21a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c21b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 22：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg22"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d22"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c22a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c22b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 23：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg23"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d23"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c23a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c23b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 24：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg24"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d24"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c24a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c24b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 25：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg25"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d25"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c25a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c25b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 26：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg26"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d26"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c26a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c26b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 27：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg27"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d27"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c27a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c27b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <!-- 格子 28：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg28"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d28"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c28a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c28b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 29：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg29"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d29"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c29a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c29b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 30：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg30"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d30"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c30a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c30b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 31：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg31"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d31"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c31a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c31b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 32：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg32"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d32"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c32a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c32b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 33：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg33"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d33"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c33a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c33b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 34：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg34"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d34"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c34a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c34b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <!-- 格子 35：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg35"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d35"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c35a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c35b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 36：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg36"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d36"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c36a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c36b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 37：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg37"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d37"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c37a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c37b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 38：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg38"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d38"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c38a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c38b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 39：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg39"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d39"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c39a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c39b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 40：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg40"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d40"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c40a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c40b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+            <!-- 格子 41：宽 1/7，顶对齐，clip -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:clipChildren="true">
+
+                <!-- 今天：26x26 主题色圆（位图由 Kotlin 按主题色画）+ 白字 14sp Bold -->
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/sw_daybg41"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:scaleType="fitXY"
+                        android:contentDescription="@null"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/sw_d41"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:textSize="14sp"
+                        android:textColor="@color/schedule_card_text_primary" />
+                </FrameLayout>
+
+                <!-- 每日类型标签：9sp 白字、高 13dp、radius4、左右 padding 2 -->
+                <TextView
+                    android:id="@+id/sw_c41a"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:layout_marginTop="1dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/sw_c41b"
+                    android:layout_width="wrap_content"
+                    android:layout_height="13dp"
+                    android:includeFontPadding="false"
+                    android:maxWidth="36dp"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:background="@drawable/widget_chip_flat"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/widget_tag_text"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

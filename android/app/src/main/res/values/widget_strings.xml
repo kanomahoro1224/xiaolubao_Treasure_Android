@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 桌面小组件的选择器文案 + 卡片兜底文案。
+     卡片正文优先用 Flutter 快照（widget_snapshot.dart）里的本地化成品文案，
+     这里的 string 只在「快照还没写出来」时兜底（首次加到桌面、清数据之后）。 -->
+<resources>
+    <string name="widget_schedule_name">日程</string>
+    <string name="widget_schedule_desc">即将开始的日程与本月月历</string>
+    <!-- 规范要求 2~8 个汉字、且不得与应用名相同；拉丁字母可能被小部件中心校验拒掉 -->
+    <string name="widget_fans_name">粉丝动态</string>
+    <string name="widget_fans_desc">粉丝数、涨跌与近期走势</string>
+    <!-- 小米小部件那一套的名字必须与原生版不同，否则系统按「同功能聚合」合并显示 -->
+    <string name="widget_schedule_mi_name">日程增强</string>
+    <string name="widget_fans_mi_name">粉丝增强</string>
+
+    <!-- 日程卡兜底文案（对应鸿蒙 schedule_card_*） -->
+    <string name="widget_schedule_upcoming">即将开始</string>
+    <string name="widget_schedule_empty">这段时间没有日程</string>
+    <string name="widget_schedule_error">日程服务器连接失败</string>
+    <string name="widget_schedule_loading">加载中…</string>
+
+    <!-- 粉丝卡兜底文案（对应鸿蒙 fans_card_*） -->
+    <string name="widget_fans_caption">当前粉丝数</string>
+    <string name="widget_fans_loading">加载中</string>
+    <string name="widget_fans_error">数据获取失败</string>
+</resources>

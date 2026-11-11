@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 小米小部件（澎湃 OS）版 B 站粉丝卡配置，与纯原生版分开。 -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="110dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:maxResizeWidth="320dp"
+    android:maxResizeHeight="180dp"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:initialLayout="@layout/widget_fans_small"
+    android:initialKeyguardLayout="@layout/widget_fans_small"
+    android:previewLayout="@layout/widget_fans_small"
+    android:previewImage="@drawable/widget_preview_fans"
+    android:description="@string/widget_fans_desc" />

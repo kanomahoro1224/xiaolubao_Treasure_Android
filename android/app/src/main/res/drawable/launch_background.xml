@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 冷启动窗口背景。与 Flutter 首帧同色，避免白闪。
+     图标由 Android 12+ 的系统启动画面自己叠（默认取 @mipmap/ic_launcher），
+     所以这里不再放一张 1024 的图占位。 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/launch_bg" />
+</layer-list>

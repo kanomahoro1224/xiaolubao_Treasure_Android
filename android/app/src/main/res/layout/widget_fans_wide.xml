@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- B站粉丝卡（2x4）：逐行对齐鸿蒙 BilibiliFansCard.MediumCard()。
+     padding 14；顶部 36 头像 + 昵称 15sp Medium（VIP 粉色）+ 签名 10sp + 右上涨跌；
+     中部粉丝数 26sp Bold + 118x44 折线；底部获赞 11sp 与更新时间 9sp。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_panel"
+    android:padding="14dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <FrameLayout
+            android:layout_width="36dp"
+            android:layout_height="36dp">
+
+            <ImageView
+                android:id="@+id/fw_avatar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:scaleType="fitXY"
+                android:contentDescription="@null"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/fw_avatar_ph"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/widget_avatar_placeholder"
+                android:contentDescription="@null" />
+        </FrameLayout>
+
+        <!-- Column({space:2}) + layoutWeight(1) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/fw_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/fans_card_text_primary" />
+
+            <TextView
+                android:id="@+id/fw_sign"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="10sp"
+                android:textColor="@color/fans_card_text_secondary" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/fw_diff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:maxLines="1"
+            android:translationY="-4dp"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- alignItems(VerticalAlign.Bottom)：折线底边与粉丝数块底边对齐 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="bottom">
+
+        <!-- 鸿蒙 MediumCard 的这一列：loading 只显示 11sp 文案，error 显示 11sp 错误，
+             ok 才显示 26sp Bold 粉丝数 + 10sp caption -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/fw_loading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="11sp"
+                android:textColor="@color/fans_card_text_secondary"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/fw_error"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="150dp"
+                android:maxLines="2"
+                android:textSize="11sp"
+                android:textColor="@color/fans_card_text_secondary"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/fw_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="@color/fans_card_text_primary" />
+
+            <TextView
+                android:id="@+id/fw_caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:maxLines="1"
+                android:textSize="11sp"
+                android:textColor="@color/fans_card_text_secondary" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/fw_chart"
+            android:layout_width="118dp"
+            android:layout_height="44dp"
+            android:scaleType="fitXY"
+            android:contentDescription="@null"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/fw_likes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textSize="11sp"
+            android:textColor="@color/fans_card_text_secondary" />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/fw_updated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textSize="9sp"
+            android:textColor="@color/fans_card_text_tertiary"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,51 @@
+name: kafuno_music
+description: 小鹿包们的宝物 — kano-navi 客户端（Flutter）
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  liquid_glass_widgets: 0.30.2
+  dio: ^5.11.1
+  shared_preferences: ^2.5.6
+  cached_network_image: ^4.0.3
+  url_launcher: ^6.3.3
+  crypto: ^3.0.6
+  add_2_calendar: ^3.1.1
+  flutter_svg: ^2.3.2
+  # 个性化 → 壁纸：选择本地图片 / 视频（鸿蒙 `selectFromGallery`）
+  image_picker: ^1.1.2
+  # 视频壁纸播放（鸿蒙 `Video({ src: this.homeVideoBg })`）
+  video_player: ^2.9.2
+  # 把用户选的壁纸复制进应用私有目录：image_picker 给的是缓存路径，会被系统清
+  path_provider: ^2.1.5
+  # 主题包导入：选 zip + 解压（鸿蒙 `importThemeZip` / `planThemePackage`）
+  file_picker: ^8.1.7
+  archive: ^3.6.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/kado_sakura21.png
+    # 主题色色盘：与鸿蒙 `resources/base/media/color_wheel.png` 逐字节一致
+    - assets/images/color_wheel.png
+    # 平台品牌标：与鸿蒙 `entry/src/main/resources/rawfile/brand/` 逐字节同一批 SVG
+    - assets/brand/
+    # 打包主题：与鸿蒙 `rawfile/themes/` 逐字节同一批资源，
+    # 目录名换成英文 slug（显示名仍是中文），避免中文路径在打包链路里出错
+    - assets/themes/ten_years/
+    - assets/themes/kano/
+    - assets/themes/kano_sakura/
+    - assets/themes/shibuya/

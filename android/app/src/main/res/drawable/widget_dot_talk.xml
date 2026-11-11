@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 日程行左侧 8dp 类型色圆点，颜色对应 KanoKind.talk -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#FF099268" />
+    <size android:width="8dp" android:height="8dp" />
+</shape>

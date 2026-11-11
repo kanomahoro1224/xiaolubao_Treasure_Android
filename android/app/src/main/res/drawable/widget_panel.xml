@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 小组件底板：与 App 内 KanoSurface 同一套观感（半透明底 + 大圆角）。
+     RemoteViews 里做不了真实背景模糊，只能靠半透明底板尽量贴近。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/widget_bg" />
+    <corners android:radius="24dp" />
+</shape>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- B站粉丝卡（2x2）：逐行对齐鸿蒙 BilibiliFansCard.SmallCard()。
+     padding 12；顶部 28 头像 + 右上涨跌 15sp Bold（上移 4dp）；中部粉丝数 28sp Bold
+     （VIP 粉色）+ 10sp caption；底部获赞 10sp Medium。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_panel"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <FrameLayout
+            android:layout_width="28dp"
+            android:layout_height="28dp">
+
+            <ImageView
+                android:id="@+id/fw_avatar"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:scaleType="fitXY"
+                android:contentDescription="@null"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/fw_avatar_ph"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/widget_avatar_placeholder"
+                android:contentDescription="@null" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Blank() 之后右上角，鸿蒙用 offset({y:-4}) 上移 -->
+        <TextView
+            android:id="@+id/fw_diff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:translationY="-4dp"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Column({{space:3}}).alignItems(Start)：三种状态各占一行，切换可见性 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fw_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textSize="12sp"
+            android:textColor="@color/fans_card_text_secondary"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/fw_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:textSize="11sp"
+            android:textColor="@color/fans_card_text_secondary"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/fw_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="@color/fans_card_text_primary" />
+
+        <TextView
+            android:id="@+id/fw_caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:maxLines="1"
+            android:textSize="11sp"
+            android:textColor="@color/fans_card_text_secondary" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/fw_likes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:textSize="10sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/fans_card_text_tertiary" />
+</LinearLayout>

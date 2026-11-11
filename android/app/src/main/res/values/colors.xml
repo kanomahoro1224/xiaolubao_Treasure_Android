@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 启动画面底色：与 KafunoTheme 的 scaffoldBackgroundColor 一致（#F1F3F5）。
+     换成同色后，冷启动窗口切到 Flutter 首帧不会闪一下白/黑。
+     Android 12+ 的系统启动画面会叠上启动器图标，底色也读这里。 -->
+<resources>
+    <color name="launch_bg">#FFF1F3F5</color>
+
+    <!-- 桌面小组件底板：与 Flutter 侧 KanoPalette 的浅色值对齐 -->
+    <color name="widget_bg">#F2FFFFFF</color>
+
+    <!-- ============ 日程 / 粉丝卡片文字色 ============
+         逐值对齐鸿蒙 entry/src/main/resources/base/element/color.json，
+         深色由 values-night 覆盖：RemoteViews 里不判断深浅色，只认资源。 -->
+    <color name="schedule_card_text_primary">#FF1F1F24</color>
+    <color name="schedule_card_text_secondary">#991F1F24</color>
+    <color name="schedule_card_text_tertiary">#661F1F24</color>
+    <color name="schedule_card_divider">#1F1F1F24</color>
+
+    <color name="fans_card_text_primary">#FF1F1F24</color>
+    <color name="fans_card_text_secondary">#991F1F24</color>
+    <color name="fans_card_text_tertiary">#661F1F24</color>
+
+    <!-- 类型胶囊里的白字（鸿蒙 Color.White） -->
+    <color name="widget_tag_text">#FFFFFFFF</color>
+
+    <!-- B站粉丝卡固定配色，与鸿蒙 BilibiliFansCard.ets 的常量一致 -->
+    <color name="widget_bili_pink">#FFFB7299</color>
+    <color name="widget_diff_up">#FFE8413C</color>
+    <color name="widget_diff_down">#FF31A84B</color>
+    <color name="widget_diff_flat">#FF8A8F99</color>
+    <color name="widget_avatar_wash">#24FB7299</color>
+</resources>
