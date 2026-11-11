@@ -112,6 +112,11 @@ class KanoPrefs {
   static const _bgMask = 'kanoPrefs:bgMask';
   static const _bgPreset = 'kanoPrefs:bgPreset';
   static const _haptics = 'kanoPrefs:haptics';
+  static const _pushEnabled = 'kanoPrefs:pushEnabled';
+  static const _pushLive = 'kanoPrefs:pushLive';
+  static const _pushVideo = 'kanoPrefs:pushVideo';
+  static const _pushPost = 'kanoPrefs:pushPost';
+  static const _pushLanguage = 'kanoPrefs:pushLanguage';
 
   // ===== 个性化（首页编辑态）=====
   // 键名与鸿蒙 `@StorageLink` / `PreferencesUtil` 一一对应，方便逐项回溯。
@@ -183,6 +188,11 @@ class KanoPrefs {
   static String get bgMaskKey => _bgMask;
   static String get bgPresetKey => _bgPreset;
   static String get hapticsKey => _haptics;
+  static String get pushEnabledKey => _pushEnabled;
+  static String get pushLiveKey => _pushLive;
+  static String get pushVideoKey => _pushVideo;
+  static String get pushPostKey => _pushPost;
+  static String get pushLanguageKey => _pushLanguage;
   static String get barHideTextKey => _barHideText;
   static String get flowLightModeKey => _flowLightMode;
   static String get flowLightSpeedKey => _flowLightSpeed;

@@ -14,9 +14,10 @@ enum ShellTab {
   schedule,
   settings;
 
-  /// 底栏文字走四语文案表，key 与鸿蒙 `tab_*` 资源名一致。
+  /// 底栏文字。主页用 `tab_recent`（「主页」），不是 `tab_home`（「首页」）。
+  /// 与 `Home.ets` `getVisibleBottomTabs` 的资源名一致。
   String get label => switch (this) {
-        ShellTab.home => KanoText.ui('tab_home'),
+        ShellTab.home => KanoText.ui('tab_recent'),
         ShellTab.feed => KanoText.ui('tab_feed'),
         ShellTab.schedule => KanoText.ui('tab_schedule'),
         ShellTab.settings => KanoText.ui('tab_settings'),
@@ -30,19 +31,16 @@ enum ShellTab {
         ShellTab.settings => 'SettingsPage.ets',
       };
 
+  /// 没套主题时的矢量标，与 `getVisibleBottomTabs` 的 symbol 同名。
+  /// 选中不换填充版，只靠颜色区分。
   IconData get icon => switch (this) {
-        ShellTab.home => CupertinoIcons.house,
-        ShellTab.feed => CupertinoIcons.rectangle_stack,
-        ShellTab.schedule => CupertinoIcons.calendar,
+        ShellTab.home => CupertinoIcons.dot_radiowaves_left_right,
+        ShellTab.feed => CupertinoIcons.square_grid_2x2,
+        ShellTab.schedule => CupertinoIcons.clock,
         ShellTab.settings => CupertinoIcons.gear,
       };
 
-  IconData get activeIcon => switch (this) {
-        ShellTab.home => CupertinoIcons.house_fill,
-        ShellTab.feed => CupertinoIcons.rectangle_stack_fill,
-        ShellTab.schedule => CupertinoIcons.calendar,
-        ShellTab.settings => CupertinoIcons.gear_solid,
-      };
+  IconData get activeIcon => icon;
 
   /// 主题包底栏图标的键，对应鸿蒙 `getBottomTabThemeIconKey`：
   /// 首页 main、动态 dynamic、频道 channel、商店 shop、我的 myself。

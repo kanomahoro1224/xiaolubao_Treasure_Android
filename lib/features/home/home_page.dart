@@ -12,8 +12,12 @@ import '../kano/presentation/kano_launcher.dart';
 import '../kano/presentation/kano_palette.dart';
 import '../kano/presentation/kano_state.dart';
 import '../kano/presentation/kano_calendar_export.dart';
-import '../kano/data/bilibili_api.dart';
 import '../feed/kano_post_card.dart';
+import '../settings/settings_controller.dart';
+
+/// 个性化里的主题色。下一场的状态标、倒计时、刷新都用它，不是莓色。
+Color _kanoThemeColor() =>
+    KanoPalette.parseHex(SettingsController.instance.themeColor) ?? const Color(0xFFFFC0CB);
 
 /// 主页 = kano-navi 的 KanoDashboard。
 ///
@@ -71,6 +75,14 @@ class _HomePageState extends State<HomePage>
     });
   }
 
+  /// 官方 B 站入口：dashboard resources 里按域名挑，和鸿蒙 `bilibiliUrl()` 一样。
+  String _bilibiliUrl(List<KanoResource> items) {
+    for (final item in items) {
+      if (item.url.contains('bilibili.com')) return item.url;
+    }
+    return '';
+  }
+
   String _countdownText(int remainMs) {
     if (remainMs <= 0) return KanoText.ui('recent_countdown_started');
     final totalSec = remainMs ~/ 1000;
@@ -115,7 +127,12 @@ class _HomePageState extends State<HomePage>
                     child: KanoErrorView(onRetry: () => _load(force: true)),
                   )
                 else ...[
-                  _ProfileCard(profile: data.profile, accounts: data.xAccounts, palette: palette),
+                  _ProfileCard(
+                    profile: data.profile,
+                    accounts: data.xAccounts,
+                    bilibiliUrl: _bilibiliUrl(data.resources),
+                    palette: palette,
+                  ),
                   const SizedBox(height: KanoGap.section),
                   KanoSectionLabel(KanoText.ui('recent_section_next')),
                   _NextEventCard(
@@ -182,8 +199,8 @@ class _HomePageState extends State<HomePage>
                 _loading ? KanoText.ui('kano_syncing') : KanoText.ui('kano_refresh'),
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: palette.berry,
+                  fontWeight: FontWeight.w500,
+                  color: _kanoThemeColor(),
                 ),
               ),
             ),
@@ -196,10 +213,16 @@ class _HomePageState extends State<HomePage>
 
 /// 资料卡：横幅 128 + 头像 84 上移 42 + kicker / 名字 / 罗马字 / 标语 / 平台入口。
 class _ProfileCard extends StatelessWidget {
-  const _ProfileCard({required this.profile, required this.accounts, required this.palette});
+  const _ProfileCard({
+    required this.profile,
+    required this.accounts,
+    required this.bilibiliUrl,
+    required this.palette,
+  });
 
   final KanoProfile? profile;
   final List<String> accounts;
+  final String bilibiliUrl;
   final KanoPalette palette;
 
   @override
@@ -240,16 +263,19 @@ class _ProfileCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        KanoText.ui('hero_kicker').toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1.4,
-                          color: palette.berry,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          KanoText.ui('hero_kicker').toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.4,
+                            color: palette.berry,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       Text(
                         p?.displayName ?? '',
                         style: TextStyle(
@@ -262,7 +288,7 @@ class _ProfileCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (p != null && p.romanizedName.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         Text(
                           p.romanizedName.toUpperCase(),
                           style: TextStyle(
@@ -274,7 +300,7 @@ class _ProfileCard extends StatelessWidget {
                           maxLines: 1,
                         ),
                       ],
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 10),
                       Text(
                         KanoText.ui('hero_catchphrase'),
                         style: TextStyle(
@@ -283,16 +309,8 @@ class _ProfileCard extends StatelessWidget {
                           color: palette.berry,
                         ),
                       ),
-                      if (p != null && p.bio.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          p.bio,
-                          style: TextStyle(fontSize: 13, height: 1.5, color: palette.textSecondary),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                      const SizedBox(height: 10),
+                      // RecentPage.ProfileCard 不画 profile.bio。
+                      const SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -310,11 +328,11 @@ class _ProfileCard extends StatelessWidget {
                               palette: palette,
                               onTap: () => KanoLauncher.open(context, p.youtubeUrl),
                             ),
-                          if (p != null && true)
+                          if (bilibiliUrl.isNotEmpty)
                             _LinkChip(
                               brand: 'bilibili',
                               palette: palette,
-                              onTap: () => KanoLauncher.open(context, 'https://space.bilibili.com/${BiliFeedApi.mid}'),
+                              onTap: () => KanoLauncher.open(context, bilibiliUrl),
                             ),
                         ],
                       ),
@@ -351,10 +369,10 @@ class _LinkChip extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         height: 34,
-        padding: EdgeInsets.symmetric(horizontal: hasLabel ? 12 : 0),
+        padding: EdgeInsets.only(left: hasLabel ? 12 : 0, right: hasLabel ? 14 : 0),
         width: hasLabel ? null : 34,
         decoration: BoxDecoration(
-          color: palette.chipBg,
+          color: palette.panelBg,
           borderRadius: BorderRadius.circular(17),
           border: Border.all(color: palette.hairline, width: 1),
         ),
@@ -444,7 +462,7 @@ class _NextEventCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: event.liveStatus == 'live' ? palette.liveRed : palette.berry,
+                        color: event.liveStatus == 'live' ? palette.liveRed : _kanoThemeColor(),
                         borderRadius: BorderRadius.circular(7),
                       ),
                       child: Text(
@@ -507,19 +525,25 @@ class _NextEventCard extends StatelessWidget {
                           margin: const EdgeInsets.only(right: 12),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: palette.berry, width: 1.5),
+                            border: Border.all(color: _kanoThemeColor(), width: 1.5),
                           ),
-                          child: Icon(Icons.event_available_rounded, size: 19, color: palette.berry),
+                          child: Icon(Icons.edit_calendar_rounded, size: 20, color: _kanoThemeColor()),
                         ),
                       ),
                     if (event.timeMs > nowMs)
-                      Text(
-                        countdownText(event.timeMs - nowMs),
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: palette.berry,
-                          fontFeatures: const [FontFeature.tabularFigures()],
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            countdownText(event.timeMs - nowMs),
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: _kanoThemeColor(),
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            ),
+                          ),
                         ),
                       )
                     else
@@ -528,7 +552,7 @@ class _NextEventCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: palette.berry,
+                          color: _kanoThemeColor(),
                         ),
                       ),
                   ],

@@ -5,6 +5,7 @@ import '../kano/data/kano_client.dart';
 import '../kano/data/kano_theme.dart';
 import '../kano/domain/kano_server.dart';
 import '../kano/domain/kano_text.dart';
+import '../kano/presentation/kano_notifications.dart';
 import '../kano/presentation/kano_palette.dart';
 
 /// 设置项的真相源。
@@ -24,6 +25,18 @@ class SettingsController extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   int _langMode = langFollowSystem;
   bool _haptics = true;
+
+  /// 通知。总开关默认关，三项分类默认开，推文语言 0 = 跟随应用语言。
+  /// 下标 1..4 对应简中 / 繁中 / 日语 / 英文。
+  bool _pushEnabled = false;
+
+  /// 系统通知是否仍可用。总开关的显示值是「本地偏好 && 系统仍允许」，
+  /// 和鸿蒙 `prefs.getPushEnabled && PushUtil.notificationEnabled()` 一样。
+  bool _notificationAllowed = true;
+  bool _pushLive = true;
+  bool _pushVideo = true;
+  bool _pushPost = true;
+  int _pushLanguage = 0;
 
   /// 背景参数，默认值与鸿蒙 `@StorageLink` 一致：blur 20、遮罩 0.8、预设壁纸。
   int _bgBlur = 20;
@@ -49,6 +62,11 @@ class SettingsController extends ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
   int get langMode => _langMode;
   bool get haptics => _haptics;
+  bool get pushEnabled => _pushEnabled && _notificationAllowed;
+  bool get pushLive => _pushLive;
+  bool get pushVideo => _pushVideo;
+  bool get pushPost => _pushPost;
+  int get pushLanguage => _pushLanguage;
 
   int get bgBlur => _bgBlur;
 
@@ -90,6 +108,13 @@ class SettingsController extends ChangeNotifier {
         .clamp(0, langCount - 1)
         .toInt();
     _haptics = await KanoPrefs.getBool(KanoPrefs.hapticsKey, true);
+    _pushEnabled = await KanoPrefs.getBool(KanoPrefs.pushEnabledKey, false);
+    _notificationAllowed = await KanoNotifications.enabled();
+    _pushLive = await KanoPrefs.getBool(KanoPrefs.pushLiveKey, true);
+    _pushVideo = await KanoPrefs.getBool(KanoPrefs.pushVideoKey, true);
+    _pushPost = await KanoPrefs.getBool(KanoPrefs.pushPostKey, true);
+    _pushLanguage =
+        (await KanoPrefs.getInt(KanoPrefs.pushLanguageKey, 0)).clamp(0, 4).toInt();
     _bgBlur = (await KanoPrefs.getInt(KanoPrefs.bgBlurKey, 20)).clamp(0, 100).toInt();
     _bgMask = (await KanoPrefs.getInt(KanoPrefs.bgMaskKey, 80)).clamp(0, 100).toInt();
     _bgPreset = await KanoPrefs.getString(KanoPrefs.bgPresetKey, bgPresetSakura);
@@ -170,6 +195,54 @@ class SettingsController extends ChangeNotifier {
     _haptics = value;
     notifyListeners();
     await KanoPrefs.setBool(KanoPrefs.hapticsKey, value);
+  }
+
+  /// 打开时先向系统要通知权限。拒绝则保持关闭，并返回 false。
+  Future<bool> setPushEnabled(bool value) async {
+    if (value == pushEnabled) return true;
+    if (value) {
+      final allowed = await KanoNotifications.ensure();
+      _notificationAllowed = allowed;
+      if (!allowed) {
+        notifyListeners();
+        return false;
+      }
+    } else {
+      _notificationAllowed = await KanoNotifications.enabled();
+    }
+    _pushEnabled = value;
+    notifyListeners();
+    await KanoPrefs.setBool(KanoPrefs.pushEnabledKey, value);
+    return true;
+  }
+
+  Future<void> setPushLive(bool value) async {
+    if (value == _pushLive) return;
+    _pushLive = value;
+    notifyListeners();
+    await KanoPrefs.setBool(KanoPrefs.pushLiveKey, value);
+  }
+
+  Future<void> setPushVideo(bool value) async {
+    if (value == _pushVideo) return;
+    _pushVideo = value;
+    notifyListeners();
+    await KanoPrefs.setBool(KanoPrefs.pushVideoKey, value);
+  }
+
+  Future<void> setPushPost(bool value) async {
+    if (value == _pushPost) return;
+    _pushPost = value;
+    notifyListeners();
+    await KanoPrefs.setBool(KanoPrefs.pushPostKey, value);
+  }
+
+  Future<void> setPushLanguage(int value) async {
+    final v = value.clamp(0, 4).toInt();
+    if (v == _pushLanguage) return;
+    _pushLanguage = v;
+    notifyListeners();
+    await KanoPrefs.setInt(KanoPrefs.pushLanguageKey, v);
   }
 
   /// 背景模糊半径（0..100，鸿蒙滑块同范围）。
