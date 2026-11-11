@@ -131,7 +131,9 @@ class _AppShellState extends State<AppShell>
           builder: (context, _) {
             final t = _editProgress.value.clamp(0.0, 1.0);
 
-            // 鸿蒙 `isThemedTailBarShown()`：主题底图只在手机宽度下铺。
+            // 鸿蒙 `isThemedTailBarShown()`：`themedTailBarActive && screenWidth < 600`。
+            // `refreshThemedTailBar` 只认「有激活主题」，没选主题时是玻璃浮岛，
+            // 不把某一套内置主题写成默认底栏。
             // tail_bg 是 5:1 的整幅画，Cover 铺满宽屏只会剩中间一条，
             // 所以平板（宽 ≥ 600vp）退回玻璃浮岛，页签仍是同一组按钮。
             final safeBottom = MediaQuery.viewPaddingOf(context).bottom;

@@ -12,7 +12,6 @@ import '../kano/presentation/kano_launcher.dart';
 import '../kano/presentation/kano_palette.dart';
 import '../kano/presentation/kano_state.dart';
 import '../kano/presentation/kano_calendar_export.dart';
-import '../kano/data/bilibili_api.dart';
 import '../feed/kano_post_card.dart';
 
 /// 主页 = kano-navi 的 KanoDashboard。
@@ -71,6 +70,14 @@ class _HomePageState extends State<HomePage>
     });
   }
 
+  /// 官方 B 站入口：dashboard resources 里按域名挑，和鸿蒙 `bilibiliUrl()` 一样。
+  String _bilibiliUrl(List<KanoResource> items) {
+    for (final item in items) {
+      if (item.url.contains('bilibili.com')) return item.url;
+    }
+    return '';
+  }
+
   String _countdownText(int remainMs) {
     if (remainMs <= 0) return KanoText.ui('recent_countdown_started');
     final totalSec = remainMs ~/ 1000;
@@ -115,7 +122,12 @@ class _HomePageState extends State<HomePage>
                     child: KanoErrorView(onRetry: () => _load(force: true)),
                   )
                 else ...[
-                  _ProfileCard(profile: data.profile, accounts: data.xAccounts, palette: palette),
+                  _ProfileCard(
+                    profile: data.profile,
+                    accounts: data.xAccounts,
+                    bilibiliUrl: _bilibiliUrl(data.resources),
+                    palette: palette,
+                  ),
                   const SizedBox(height: KanoGap.section),
                   KanoSectionLabel(KanoText.ui('recent_section_next')),
                   _NextEventCard(
@@ -196,10 +208,16 @@ class _HomePageState extends State<HomePage>
 
 /// 资料卡：横幅 128 + 头像 84 上移 42 + kicker / 名字 / 罗马字 / 标语 / 平台入口。
 class _ProfileCard extends StatelessWidget {
-  const _ProfileCard({required this.profile, required this.accounts, required this.palette});
+  const _ProfileCard({
+    required this.profile,
+    required this.accounts,
+    required this.bilibiliUrl,
+    required this.palette,
+  });
 
   final KanoProfile? profile;
   final List<String> accounts;
+  final String bilibiliUrl;
   final KanoPalette palette;
 
   @override
@@ -240,16 +258,19 @@ class _ProfileCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        KanoText.ui('hero_kicker').toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1.4,
-                          color: palette.berry,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          KanoText.ui('hero_kicker').toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.4,
+                            color: palette.berry,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       Text(
                         p?.displayName ?? '',
                         style: TextStyle(
@@ -262,7 +283,7 @@ class _ProfileCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (p != null && p.romanizedName.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         Text(
                           p.romanizedName.toUpperCase(),
                           style: TextStyle(
@@ -274,7 +295,7 @@ class _ProfileCard extends StatelessWidget {
                           maxLines: 1,
                         ),
                       ],
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 10),
                       Text(
                         KanoText.ui('hero_catchphrase'),
                         style: TextStyle(
@@ -283,16 +304,8 @@ class _ProfileCard extends StatelessWidget {
                           color: palette.berry,
                         ),
                       ),
-                      if (p != null && p.bio.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          p.bio,
-                          style: TextStyle(fontSize: 13, height: 1.5, color: palette.textSecondary),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                      const SizedBox(height: 10),
+                      // RecentPage.ProfileCard 不画 profile.bio。
+                      const SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -310,11 +323,11 @@ class _ProfileCard extends StatelessWidget {
                               palette: palette,
                               onTap: () => KanoLauncher.open(context, p.youtubeUrl),
                             ),
-                          if (p != null && true)
+                          if (bilibiliUrl.isNotEmpty)
                             _LinkChip(
                               brand: 'bilibili',
                               palette: palette,
-                              onTap: () => KanoLauncher.open(context, 'https://space.bilibili.com/${BiliFeedApi.mid}'),
+                              onTap: () => KanoLauncher.open(context, bilibiliUrl),
                             ),
                         ],
                       ),
@@ -351,10 +364,10 @@ class _LinkChip extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         height: 34,
-        padding: EdgeInsets.symmetric(horizontal: hasLabel ? 12 : 0),
+        padding: EdgeInsets.only(left: hasLabel ? 12 : 0, right: hasLabel ? 14 : 0),
         width: hasLabel ? null : 34,
         decoration: BoxDecoration(
-          color: palette.chipBg,
+          color: palette.panelBg,
           borderRadius: BorderRadius.circular(17),
           border: Border.all(color: palette.hairline, width: 1),
         ),

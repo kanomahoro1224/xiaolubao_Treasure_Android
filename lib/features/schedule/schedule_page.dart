@@ -11,6 +11,7 @@ import '../kano/presentation/kano_haptics.dart';
 import '../kano/presentation/kano_launcher.dart';
 import '../kano/presentation/kano_palette.dart';
 import '../kano/presentation/kano_state.dart';
+import '../settings/settings_controller.dart';
 
 /// 一格日历
 class _Cell {
@@ -303,12 +304,20 @@ class _SchedulePageState extends State<SchedulePage>
     );
   }
 
+  /// 今天的实心圆用主题色（默认 #FFC0CB），不是莓色。
+  Color _themeColor() =>
+      KanoPalette.parseHex(SettingsController.instance.themeColor) ?? const Color(0xFFFFC0CB);
+
   Widget _calendarColumn(KanoPalette palette) {
-    return Column(
+    // SchedulePage.MonthPanel：圆角 24 + 半透明底 + 薄模糊，日期才不会直接压在壁纸上。
+    return KanoSurface(
+      radius: 24,
+      padding: const EdgeInsets.only(top: 10, bottom: 14),
+      child: Column(
       children: [
         _weekRow(palette),
         SizedBox(
-          height: 6 * 72,
+          height: 6 * 66 + 5 * 6,
           child: PageView.builder(
             controller: _controller,
             onPageChanged: (index) {
@@ -325,6 +334,7 @@ class _SchedulePageState extends State<SchedulePage>
           ),
         ),
       ],
+      ),
     );
   }
 
@@ -352,27 +362,35 @@ class _SchedulePageState extends State<SchedulePage>
 
   Widget _monthGrid(int year, int month, KanoPalette palette) {
     final cells = _buildCells(year, month);
-    return GridView.builder(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cellWidth = constraints.maxWidth / 7;
+        return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
       padding: EdgeInsets.zero,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 7,
-        childAspectRatio: 1 / 1.28,
-        mainAxisSpacing: 2,
+        childAspectRatio: cellWidth / 66,
+        mainAxisSpacing: 6,
       ),
       itemCount: cells.length,
       itemBuilder: (context, i) => _dayCell(cells[i], palette),
+    );
+      },
     );
   }
 
   Widget _dayCell(_Cell cell, KanoPalette palette) {
     final selected = cell.key == _selectedKey;
     final highlighted = selected || cell.isToday;
+    final theme = _themeColor();
     final Color numberColor;
     if (!cell.inMonth) {
-      numberColor = palette.textTertiary.withValues(alpha: 0.55);
+      numberColor = palette.textTertiary;
     } else if (cell.isToday) {
-      numberColor = palette.isLight ? Colors.white : Colors.black87;
+      numberColor = Colors.white;
+    } else if (selected) {
+      numberColor = theme;
     } else if (cell.weekend) {
       numberColor = palette.textSecondary;
     } else {
@@ -392,9 +410,9 @@ class _SchedulePageState extends State<SchedulePage>
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: cell.isToday ? palette.berry : Colors.transparent,
+              color: cell.isToday ? theme : Colors.transparent,
               border: selected && !cell.isToday
-                  ? Border.all(color: palette.berry, width: 1.5)
+                  ? Border.all(color: theme, width: 1.5)
                   : null,
             ),
             child: Text(
@@ -439,6 +457,7 @@ class _SchedulePageState extends State<SchedulePage>
   Widget _chip(String label, Color color) {
     return Container(
       height: 13,
+      constraints: const BoxConstraints(maxWidth: double.infinity),
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
       alignment: Alignment.center,
@@ -446,57 +465,62 @@ class _SchedulePageState extends State<SchedulePage>
         label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontSize: 8.5, fontWeight: FontWeight.w500, color: Colors.white),
+        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w500, color: Colors.white, height: 1),
       ),
     );
   }
 
   Widget _upcomingSection(KanoPalette palette) {
     final items = _upcoming();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        KanoSectionLabel(KanoText.ui('schedule_upcoming')),
-        if (!_firstLoadDone && items.isEmpty)
-          const KanoSurface(
-            child: Column(
-              children: [
-                KanoBlock(height: 14, strong: true),
-                SizedBox(height: 10),
-                KanoBlock(height: 12),
-                SizedBox(height: 8),
-                KanoBlock(width: 160, height: 12),
-              ],
-            ),
-          )
-        else if (items.isEmpty)
-          KanoSurface(
+    return KanoSurface(
+      radius: 24,
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Text(
-              KanoText.ui('schedule_empty_month'),
-              style: TextStyle(fontSize: 13, color: palette.textSecondary, height: 1.5),
-            ),
-          )
-        else
-          KanoSurface(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Column(
-              children: [
-                for (var i = 0; i < items.length; i++) ...[
-                  _UpcomingRow(
-                    event: items[i],
-                    palette: palette,
-                    onTap: () => _jumpTo(items[i]),
-                  ),
-                  if (i < items.length - 1)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16, right: 16),
-                      child: Divider(height: 1, thickness: 1, color: palette.hairline),
-                    ),
-                ],
-              ],
+              KanoText.ui('schedule_upcoming'),
+              style: TextStyle(fontSize: 14, color: palette.textSecondary),
             ),
           ),
-      ],
+          if (!_firstLoadDone && items.isEmpty)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: Column(
+                children: [
+                  KanoBlock(height: 14, strong: true),
+                  SizedBox(height: 10),
+                  KanoBlock(height: 12),
+                  SizedBox(height: 8),
+                  KanoBlock(width: 160, height: 12),
+                ],
+              ),
+            )
+          else if (items.isEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: Text(
+                KanoText.ui('schedule_empty_month'),
+                style: TextStyle(fontSize: 13, color: palette.textSecondary, height: 1.5),
+              ),
+            )
+          else
+            for (var i = 0; i < items.length; i++) ...[
+              _UpcomingRow(
+                event: items[i],
+                palette: palette,
+                onTap: () => _jumpTo(items[i]),
+              ),
+              if (i < items.length - 1)
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: Divider(height: 1, thickness: 1, color: palette.hairline),
+                ),
+            ],
+        ],
+      ),
     );
   }
 
@@ -559,39 +583,32 @@ class _UpcomingRow extends StatelessWidget {
   final KanoPalette palette;
   final VoidCallback onTap;
 
+  /// `11/11 周三 · 19:00 JST`。timeText 自己已经带 JST。
+  String get _meta {
+    final key = event.startsOn;
+    if (key.length < 10) return event.timeText();
+    final month = int.tryParse(key.substring(5, 7)) ?? 0;
+    final day = int.tryParse(key.substring(8, 10)) ?? 0;
+    final parsed = DateTime.tryParse(key);
+    final weekday = parsed == null ? '' : KanoText.weekFull(parsed.weekday - 1);
+    return '$month/$day $weekday · ${event.timeText()}';
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isLive = event.liveStatus == 'live';
+    final kindColor = Color(KanoKind.colorValue(event.kind()));
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 52,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    KanoTime.dateKeyText(event.startsOn),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: palette.textPrimary,
-                    ),
-                    maxLines: 1,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    event.timeMs > 0 ? KanoTime.jstText(event.timeMs) : '--:--',
-                    style: TextStyle(fontSize: 11, color: palette.textTertiary),
-                    maxLines: 1,
-                  ),
-                ],
-              ),
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(color: kindColor, shape: BoxShape.circle),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -600,45 +617,34 @@ class _UpcomingRow extends StatelessWidget {
                 children: [
                   Text(
                     event.title,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: palette.textPrimary,
-                      height: 1.35,
-                    ),
-                    maxLines: 2,
+                    style: TextStyle(fontSize: 15, color: palette.textPrimary, height: 1.25),
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                        decoration: BoxDecoration(
-                          color: Color(KanoKind.colorValue(event.kind())),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          event.kindLabel(),
-                          style: const TextStyle(
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        event.statusText(),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: isLive ? FontWeight.bold : FontWeight.w400,
-                          color: isLive ? palette.liveRed : palette.textTertiary,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 3),
+                  Text(
+                    _meta,
+                    style: TextStyle(fontSize: 12, color: palette.textSecondary, height: 1.2),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
+              decoration: BoxDecoration(
+                color: kindColor,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                event.kindLabel(),
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
               ),
             ),
           ],

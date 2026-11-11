@@ -14,15 +14,8 @@ import 'settings_strings.dart';
 
 /// 设置。
 ///
-/// 与鸿蒙 `SettingsPage.ets` 的三段式一致（标题 24 + 分组标题 14 + 圆角 20 的组容器），
-/// 分组内容按 Flutter 侧真有的能力重排：
-/// - 外观：语言（5 种，与鸿蒙下拉同序）、外观模式、新版玻璃、触感反馈
-/// - 数据与网络：服务器、缓存、日历订阅
-/// - 其它：关于
-///
-/// 没搬过来的三项：**推送**（`PushUtil` 走华为 Push Kit，Flutter 侧没有对应后端）、
-/// **智感握姿**（HarmonyOS 折叠/分屏特性）、**个性化**（改的是首页编辑态的壁纸与流光，
-/// Flutter 侧还没做编辑态）。留空行不如不放，所以这三项直接不出现在界面上。
+/// 分组对齐鸿蒙设置页截图：外观（语言下拉、新版玻璃、个性化）、通知、其它。
+/// 语言仍含「跟随系统」，只是收进右侧下拉，不再铺一排胶囊。
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -274,20 +267,20 @@ class _SettingsPageState extends State<SettingsPage>
     return ListenableBuilder(
       listenable: settings,
       builder: (context, _) {
-        final serverLabel = switch (settings.customBase) {
-          final custom when custom.isNotEmpty => custom,
-          _ => settings.activeBase,
-        };
+        // SlidingSegment 的开关文案：下标 0 = 关，1 = 开。
+        final onOff = [KanoText.ui('setting_off'), KanoText.ui('setting_on')];
         return ListView(
-          padding: const EdgeInsets.fromLTRB(KanoGap.page, 0, KanoGap.page, 120),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
           children: [
-            const SizedBox(height: 48),
-            Text(
-              KanoText.ui('tab_settings'),
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: palette.textPrimary,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text(
+                KanoText.ui('tab_settings'),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: palette.textPrimary,
+                ),
               ),
             ),
             const SizedBox(height: 18),
@@ -295,9 +288,16 @@ class _SettingsPageState extends State<SettingsPage>
               title: KanoText.ui('settings_category_appearance'),
               palette: palette,
               children: [
-                _ChoiceRow(
+                _DropRow(
                   title: KanoText.ui('settings_language'),
                   palette: palette,
+                  value: [
+                    KanoText.ui('lang_follow_system'),
+                    KanoText.ui('lang_zh'),
+                    KanoText.ui('lang_zh_hant'),
+                    KanoText.ui('lang_ja'),
+                    KanoText.ui('lang_en'),
+                  ][settings.langMode.clamp(0, 4).toInt()],
                   options: [
                     KanoText.ui('lang_follow_system'),
                     KanoText.ui('lang_zh'),
@@ -307,6 +307,15 @@ class _SettingsPageState extends State<SettingsPage>
                   ],
                   selected: settings.langMode,
                   onSelected: (index) => _set(() => settings.setLangMode(index)),
+                ),
+                _DropRow(
+                  title: KanoText.ui('settings_category_new_glass'),
+                  subtitle: KanoText.ui('settings_category_new_glass_desc'),
+                  palette: palette,
+                  value: settings.newGlass ? onOff[1] : onOff[0],
+                  options: onOff,
+                  selected: settings.newGlass ? 1 : 0,
+                  onSelected: (index) => _set(() => settings.setNewGlass(index == 1)),
                 ),
                 _NavRow(
                   title: KanoText.ui('settings_category_personalize'),
@@ -319,12 +328,69 @@ class _SettingsPageState extends State<SettingsPage>
                     HomeEditMode.instance.enter();
                   },
                 ),
-                _ToggleRow(
-                  title: KanoText.ui('settings_category_haptic_feedback'),
-                  subtitle: KanoText.ui('settings_category_haptic_feedback_desc'),
+              ],
+            ),
+            const SizedBox(height: 22),
+            _Section(
+              title: KanoText.ui('settings_category_notify'),
+              palette: palette,
+              children: [
+                _DropRow(
+                  title: KanoText.ui('setting_push_enabled'),
+                  subtitle: KanoText.ui('setting_push_enabled_desc'),
                   palette: palette,
-                  value: settings.haptics,
-                  onChanged: (value) => _set(() => settings.setHaptics(value)),
+                  value: settings.pushEnabled ? onOff[1] : onOff[0],
+                  options: onOff,
+                  selected: settings.pushEnabled ? 1 : 0,
+                  onSelected: (index) {
+                    _onPushEnabled(index == 1);
+                  },
+                ),
+                _DropRow(
+                  title: KanoText.ui('setting_push_live'),
+                  subtitle: KanoText.ui('setting_push_live_desc'),
+                  palette: palette,
+                  value: settings.pushLive ? onOff[1] : onOff[0],
+                  options: onOff,
+                  selected: settings.pushLive ? 1 : 0,
+                  disabled: !settings.pushEnabled,
+                  onSelected: (index) => _set(() => settings.setPushLive(index == 1)),
+                ),
+                _DropRow(
+                  title: KanoText.ui('setting_push_video'),
+                  subtitle: KanoText.ui('setting_push_video_desc'),
+                  palette: palette,
+                  value: settings.pushVideo ? onOff[1] : onOff[0],
+                  options: onOff,
+                  selected: settings.pushVideo ? 1 : 0,
+                  disabled: !settings.pushEnabled,
+                  onSelected: (index) => _set(() => settings.setPushVideo(index == 1)),
+                ),
+                _DropRow(
+                  title: KanoText.ui('setting_push_post'),
+                  subtitle: KanoText.ui('setting_push_post_desc'),
+                  palette: palette,
+                  value: settings.pushPost ? onOff[1] : onOff[0],
+                  options: onOff,
+                  selected: settings.pushPost ? 1 : 0,
+                  disabled: !settings.pushEnabled,
+                  onSelected: (index) => _set(() => settings.setPushPost(index == 1)),
+                ),
+                _DropRow(
+                  title: KanoText.ui('setting_push_language'),
+                  subtitle: KanoText.ui('setting_push_language_desc'),
+                  palette: palette,
+                  value: _pushLanguageLabel(settings.pushLanguage),
+                  options: [
+                    KanoText.ui('setting_push_language_follow'),
+                    KanoText.ui('lang_zh'),
+                    KanoText.ui('lang_zh_hant'),
+                    KanoText.ui('lang_ja'),
+                    KanoText.ui('lang_en'),
+                  ],
+                  selected: settings.pushLanguage.clamp(0, 4).toInt(),
+                  disabled: !settings.pushEnabled,
+                  onSelected: (index) => _set(() => settings.setPushLanguage(index)),
                 ),
               ],
             ),
@@ -348,6 +414,27 @@ class _SettingsPageState extends State<SettingsPage>
         );
       },
     );
+  }
+
+  Future<void> _onPushEnabled(bool value) async {
+    final ok = await SettingsController.instance.setPushEnabled(value);
+    if (!ok && mounted) {
+      _toast(KanoText.ui('setting_push_permission_denied'));
+    } else if (ok) {
+      KanoHaptics.select();
+    }
+  }
+
+  String _pushLanguageLabel(int index) {
+    const keys = [
+      'setting_push_language_follow',
+      'lang_zh',
+      'lang_zh_hant',
+      'lang_ja',
+      'lang_en',
+    ];
+    final i = index.clamp(0, keys.length - 1).toInt();
+    return KanoText.ui(keys[i]);
   }
 
   static String _size(int chars) {
@@ -380,14 +467,13 @@ class _Section extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
           child: Text(
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontSize: 14,
               color: palette.textSecondary,
             ),
           ),
@@ -413,82 +499,93 @@ class _Section extends StatelessWidget {
   }
 }
 
-/// 标题 + 说明 + 右侧控件（开关）
-class _ToggleRow extends StatelessWidget {
-  const _ToggleRow({
+/// 标题 + 说明 + 右侧 Select。对齐鸿蒙 `SlidingSegment`：高 36、圆角 18、14 号粗体。
+/// 开关项的 options 必须是 [关, 开]，下标 0/1。
+class _DropRow extends StatelessWidget {
+  const _DropRow({
     required this.title,
     required this.palette,
     required this.value,
-    required this.onChanged,
+    required this.options,
+    required this.selected,
+    required this.onSelected,
     this.subtitle,
+    this.disabled = false,
   });
 
   final String title;
   final String? subtitle;
-  final KanoPalette palette;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 13, 10, 13),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(child: _Label(title: title, subtitle: subtitle, palette: palette)),
-          const SizedBox(width: 10),
-          Switch.adaptive(
-            value: value,
-            onChanged: onChanged,
-            activeTrackColor: palette.accent,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 标题 + 说明 + 下方的选项胶囊（鸿蒙的 segment 在这里展开成 chips：
-/// 手机上 5 个语言名横排会挤成一条，换行更好点）
-class _ChoiceRow extends StatelessWidget {
-  const _ChoiceRow({
-    required this.title,
-    required this.palette,
-    required this.options,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final String title;
+  final String value;
   final KanoPalette palette;
   final List<String> options;
   final int selected;
   final ValueChanged<int> onSelected;
+  final bool disabled;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 13, 16, 13),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _Label(title: title, palette: palette),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (var i = 0; i < options.length; i++)
-                _Chip(
-                  label: options[i],
-                  palette: palette,
-                  selected: i == selected,
-                  onTap: () => onSelected(i),
-                ),
-            ],
+    final menu = PopupMenuButton<int>(
+      enabled: !disabled,
+      initialValue: selected,
+      onSelected: onSelected,
+      itemBuilder: (context) => [
+        for (var i = 0; i < options.length; i++)
+          PopupMenuItem<int>(
+            value: i,
+            child: Text(
+              options[i],
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: i == selected ? FontWeight.bold : FontWeight.w500,
+                color: i == selected ? palette.berry : palette.textPrimary,
+              ),
+            ),
           ),
-        ],
+      ],
+      child: Container(
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: palette.isLight ? const Color(0x0D000000) : const Color(0x14FFFFFF),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 132),
+              child: Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: palette.isLight ? Colors.black : Colors.white,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.arrow_drop_down_rounded,
+              size: 20,
+              color: palette.isLight ? Colors.black : Colors.white,
+            ),
+          ],
+        ),
+      ),
+    );
+    return Opacity(
+      opacity: disabled ? 0.4 : 1,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(child: _Label(title: title, subtitle: subtitle, palette: palette)),
+            const SizedBox(width: 8),
+            menu,
+          ],
+        ),
       ),
     );
   }
@@ -566,63 +663,21 @@ class _Label extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 14.5,
+            fontSize: 16,
             height: 1.25,
-            fontWeight: FontWeight.w500,
             color: palette.textPrimary,
           ),
         ),
         if (subtitle != null && subtitle!.isNotEmpty) ...[
-          const SizedBox(height: 3),
+          const SizedBox(height: 2),
           Text(
             subtitle!,
-            style: TextStyle(fontSize: 11.5, height: 1.4, color: palette.textSecondary),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 11, height: 1.3, color: palette.textTertiary),
           ),
         ],
       ],
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({
-    required this.label,
-    required this.palette,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final KanoPalette palette;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(
-          color: selected ? palette.berryWash : palette.chipBg,
-          borderRadius: BorderRadius.circular(KanoRadius.pill),
-          border: Border.all(
-            color: selected ? palette.berry.withValues(alpha: 0.45) : palette.hairline,
-            width: 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12.5,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-            color: selected ? palette.berry : palette.textSecondary,
-          ),
-        ),
-      ),
     );
   }
 }

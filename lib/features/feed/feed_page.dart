@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 
 import '../kano/data/bilibili_api.dart';
@@ -494,7 +492,8 @@ class _FeedPageState extends State<FeedPage> with AutomaticKeepAliveClientMixin 
                       final active = i == _platformIndex;
                       return Center(
                         child: _Pill(
-                          // HdsButton 的 `barWidth: chipWidth - 4`：外框 56，玻璃块 52
+                          // HdsButton 的玻璃块：外框 56×48，绘制宽 chipWidth-4。
+                          // 选中再叠 12% 的内容色，前景仍是深色，不是实心黑底白标。
                           width: _platformChipWidth - 4,
                           height: _platformBarHeight - 12,
                           active: active,
@@ -528,7 +527,6 @@ class _FeedPageState extends State<FeedPage> with AutomaticKeepAliveClientMixin 
                     final active = i == _filterIndex;
                     return Center(
                       child: _Pill(
-                        // 同上：外框按文案定宽，玻璃块再让 4
                         width: _chipWidthFor(label, tab.chipWidth) - 4,
                         height: _filterBarHeight - 12,
                         active: active,
@@ -738,10 +736,8 @@ class _OfflineHint extends StatelessWidget {
   }
 }
 
-/// 玻璃胶囊：鸿蒙 `HdsButton` 的「薄玻璃底 + 胶囊」，选中再加一层 12% 的内容色。
-///
-/// 鸿蒙走系统沉浸材质；Flutter 侧没有，用「背景模糊 + 半透明白」还原同一层观感，
-/// 按压时缩到 0.95（`scaleFactor` + 160ms EaseOut）。
+/// 平台/分类胶囊。对齐鸿蒙 `HdsButton`：半透明底，选中再叠 12% 内容色。
+/// 不走 BackdropFilter。按压缩到 0.95（160ms EaseOut）。
 class _Pill extends StatefulWidget {
   const _Pill({
     required this.width,
@@ -772,11 +768,11 @@ class _PillState extends State<_Pill> {
   @override
   Widget build(BuildContext context) {
     final palette = KanoPalette.of(context);
-    // 鸿蒙 HdsButton: `barHeight < barWidth ? (barHeight-12)/2 : barWidth/2`，
-    // 传进来的 height 已经是减去 12 后的绘制高度，所以直接取短边的一半。
     final radius = BorderRadius.circular(
       widget.height < widget.width ? widget.height / 2 : widget.width / 2,
     );
+    final base = palette.isLight ? const Color(0xF2FFFFFF) : const Color(0x14FFFFFF);
+    final activeWash = palette.textPrimary.withValues(alpha: 0.12);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => _set(true),
@@ -790,26 +786,16 @@ class _PillState extends State<_Pill> {
         scale: _down ? 0.95 : 1,
         duration: const Duration(milliseconds: 160),
         curve: Curves.easeOut,
-        child: SizedBox(
+        child: Container(
           width: widget.width,
           height: widget.height,
-          child: ClipRRect(
+          decoration: BoxDecoration(
+            color: widget.active ? Color.alphaBlend(activeWash, base) : base,
             borderRadius: radius,
-            child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: widget.active
-                      ? palette.textPrimary.withValues(alpha: 0.12)
-                      : palette.chipBg,
-                  borderRadius: radius,
-                  border: Border.all(color: palette.hairline, width: 1),
-                ),
-                alignment: Alignment.center,
-                child: widget.child,
-              ),
-            ),
+            border: Border.all(color: palette.hairline, width: 1),
           ),
+          alignment: Alignment.center,
+          child: widget.child,
         ),
       ),
     );

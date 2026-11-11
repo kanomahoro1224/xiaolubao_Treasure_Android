@@ -5,6 +5,8 @@
     <!-- 写系统日历（add_2_calendar 插件的 manifest 是空的，权限得由宿主声明） -->
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
     <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
+    <!-- 设置页「接收推送」打开时申请。Android 13+ 才会弹出系统授权。 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <!-- 设置页允许填自建实例（可能是 http://）：Android 9+ 默认禁明文，
          不开这一项那条自定义地址会静默失败。 -->

@@ -14,6 +14,10 @@ class KanoPalette {
 
   final bool isLight;
 
+  /// 设置页「启用新版玻璃」。开：卡片从预模糊快照裁玻璃；关：不透明面板。
+  /// 由 [SettingsController] 在读盘和切换时写入，卡片跟着外壳一起重建。
+  static bool newGlass = true;
+
   /// 用户在「个性化 → 主题 → 主题色」里挑的颜色。
   /// null 表示没改过，仍然用官网那对莓色——避免默认就把对比度调低。
   static Color? _customAccent;
@@ -136,6 +140,9 @@ class KanoSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = KanoPalette.of(context);
+    // 开：从预模糊快照裁玻璃（对应鸿蒙新版沉浸材质）。
+    // 关：只留半透明面板，不再叠那张快照（对应关掉新材质后的普通卡片）。
+    final glassOn = KanoPalette.newGlass && blur > 0;
     final shape = BorderRadius.circular(radius);
     final panel = Container(
       width: double.infinity,
@@ -147,7 +154,7 @@ class KanoSurface extends StatelessWidget {
       ),
       child: child,
     );
-    if (blur <= 0) return panel;
+    if (!glassOn) return panel;
     return ClipRRect(
       borderRadius: shape,
       child: KanoGlassLayer(child: panel),
