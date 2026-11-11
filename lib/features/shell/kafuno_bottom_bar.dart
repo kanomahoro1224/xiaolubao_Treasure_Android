@@ -136,7 +136,7 @@ class _KafunoBottomBarState extends State<KafunoBottomBar> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: themed ? 10 : 11,
+            fontSize: 10,
             height: 1.1,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
           ),

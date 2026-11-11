@@ -13,6 +13,11 @@ import '../kano/presentation/kano_palette.dart';
 import '../kano/presentation/kano_state.dart';
 import '../kano/presentation/kano_calendar_export.dart';
 import '../feed/kano_post_card.dart';
+import '../settings/settings_controller.dart';
+
+/// 个性化里的主题色。下一场的状态标、倒计时、刷新都用它，不是莓色。
+Color _kanoThemeColor() =>
+    KanoPalette.parseHex(SettingsController.instance.themeColor) ?? const Color(0xFFFFC0CB);
 
 /// 主页 = kano-navi 的 KanoDashboard。
 ///
@@ -194,8 +199,8 @@ class _HomePageState extends State<HomePage>
                 _loading ? KanoText.ui('kano_syncing') : KanoText.ui('kano_refresh'),
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: palette.berry,
+                  fontWeight: FontWeight.w500,
+                  color: _kanoThemeColor(),
                 ),
               ),
             ),
@@ -457,7 +462,7 @@ class _NextEventCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: event.liveStatus == 'live' ? palette.liveRed : palette.berry,
+                        color: event.liveStatus == 'live' ? palette.liveRed : _kanoThemeColor(),
                         borderRadius: BorderRadius.circular(7),
                       ),
                       child: Text(
@@ -520,19 +525,25 @@ class _NextEventCard extends StatelessWidget {
                           margin: const EdgeInsets.only(right: 12),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: palette.berry, width: 1.5),
+                            border: Border.all(color: _kanoThemeColor(), width: 1.5),
                           ),
-                          child: Icon(Icons.event_available_rounded, size: 19, color: palette.berry),
+                          child: Icon(Icons.edit_calendar_rounded, size: 20, color: _kanoThemeColor()),
                         ),
                       ),
                     if (event.timeMs > nowMs)
-                      Text(
-                        countdownText(event.timeMs - nowMs),
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: palette.berry,
-                          fontFeatures: const [FontFeature.tabularFigures()],
+                      Flexible(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            countdownText(event.timeMs - nowMs),
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: _kanoThemeColor(),
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                            ),
+                          ),
                         ),
                       )
                     else
@@ -541,7 +552,7 @@ class _NextEventCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: palette.berry,
+                          color: _kanoThemeColor(),
                         ),
                       ),
                   ],

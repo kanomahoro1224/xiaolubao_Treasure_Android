@@ -308,15 +308,6 @@ class _SettingsPageState extends State<SettingsPage>
                   selected: settings.langMode,
                   onSelected: (index) => _set(() => settings.setLangMode(index)),
                 ),
-                _DropRow(
-                  title: KanoText.ui('settings_category_new_glass'),
-                  subtitle: KanoText.ui('settings_category_new_glass_desc'),
-                  palette: palette,
-                  value: settings.newGlass ? onOff[1] : onOff[0],
-                  options: onOff,
-                  selected: settings.newGlass ? 1 : 0,
-                  onSelected: (index) => _set(() => settings.setNewGlass(index == 1)),
-                ),
                 _NavRow(
                   title: KanoText.ui('settings_category_personalize'),
                   subtitle: KanoText.ui('settings_category_personalize_desc'),

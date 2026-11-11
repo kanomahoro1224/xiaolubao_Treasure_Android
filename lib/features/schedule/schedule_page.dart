@@ -548,27 +548,24 @@ class _TodayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TodayButton：外框 52×64，字 16 粗体，底是玻璃胶囊，不是实心莓色。
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        width: 52,
+        height: 64,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: palette.berry,
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: [
-            BoxShadow(
-              color: palette.berry.withValues(alpha: 0.32),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          color: palette.isLight ? const Color(0xF2FFFFFF) : const Color(0x14FFFFFF),
+          borderRadius: BorderRadius.circular(26),
+          border: Border.all(color: palette.hairline),
         ),
         child: Text(
           KanoText.ui('schedule_today'),
-          style: const TextStyle(
-            fontSize: 13,
+          style: TextStyle(
+            fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: palette.textPrimary,
           ),
         ),
       ),

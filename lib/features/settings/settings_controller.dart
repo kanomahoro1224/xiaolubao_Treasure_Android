@@ -26,9 +26,6 @@ class SettingsController extends ChangeNotifier {
   int _langMode = langFollowSystem;
   bool _haptics = true;
 
-  /// 启用新版玻璃。默认开，和鸿蒙设置页截图一致。
-  bool _newGlass = true;
-
   /// 通知。总开关默认关，三项分类默认开，推文语言 0 = 跟随应用语言。
   /// 下标 1..4 对应简中 / 繁中 / 日语 / 英文。
   bool _pushEnabled = false;
@@ -65,7 +62,6 @@ class SettingsController extends ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
   int get langMode => _langMode;
   bool get haptics => _haptics;
-  bool get newGlass => _newGlass;
   bool get pushEnabled => _pushEnabled && _notificationAllowed;
   bool get pushLive => _pushLive;
   bool get pushVideo => _pushVideo;
@@ -112,8 +108,6 @@ class SettingsController extends ChangeNotifier {
         .clamp(0, langCount - 1)
         .toInt();
     _haptics = await KanoPrefs.getBool(KanoPrefs.hapticsKey, true);
-    _newGlass = await KanoPrefs.getBool(KanoPrefs.newGlassKey, true);
-    KanoPalette.newGlass = _newGlass;
     _pushEnabled = await KanoPrefs.getBool(KanoPrefs.pushEnabledKey, false);
     _notificationAllowed = await KanoNotifications.enabled();
     _pushLive = await KanoPrefs.getBool(KanoPrefs.pushLiveKey, true);
@@ -201,14 +195,6 @@ class SettingsController extends ChangeNotifier {
     _haptics = value;
     notifyListeners();
     await KanoPrefs.setBool(KanoPrefs.hapticsKey, value);
-  }
-
-  Future<void> setNewGlass(bool value) async {
-    if (value == _newGlass) return;
-    _newGlass = value;
-    KanoPalette.newGlass = value;
-    notifyListeners();
-    await KanoPrefs.setBool(KanoPrefs.newGlassKey, value);
   }
 
   /// 打开时先向系统要通知权限。拒绝则保持关闭，并返回 false。

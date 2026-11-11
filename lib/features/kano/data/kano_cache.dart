@@ -112,7 +112,6 @@ class KanoPrefs {
   static const _bgMask = 'kanoPrefs:bgMask';
   static const _bgPreset = 'kanoPrefs:bgPreset';
   static const _haptics = 'kanoPrefs:haptics';
-  static const _newGlass = 'kanoPrefs:newGlass';
   static const _pushEnabled = 'kanoPrefs:pushEnabled';
   static const _pushLive = 'kanoPrefs:pushLive';
   static const _pushVideo = 'kanoPrefs:pushVideo';
@@ -189,7 +188,6 @@ class KanoPrefs {
   static String get bgMaskKey => _bgMask;
   static String get bgPresetKey => _bgPreset;
   static String get hapticsKey => _haptics;
-  static String get newGlassKey => _newGlass;
   static String get pushEnabledKey => _pushEnabled;
   static String get pushLiveKey => _pushLive;
   static String get pushVideoKey => _pushVideo;
