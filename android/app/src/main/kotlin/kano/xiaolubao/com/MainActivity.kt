@@ -3,7 +3,7 @@ package kano.xiaolubao.com
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterActivity
@@ -20,11 +20,14 @@ import kano.xiaolubao.com.widget.WidgetRefresh
 class MainActivity : FlutterActivity() {
     private var notificationResult: MethodChannel.Result? = null
 
-    private val notificationPermission = registerForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { granted ->
-        notificationResult?.success(granted)
-        notificationResult = null
+    /**
+     * 这里**不能**用 `registerForActivityResult`：那是 `ComponentActivity` 的 API，
+     * 而 `FlutterActivity` 继承的是老式 `android.app.Activity`，Kotlin 侧解析不到，
+     * 会直接编译失败（Unresolved reference）。所以退回 `requestPermissions` +
+     * `onRequestPermissionsResult` 这套传统回调。
+     */
+    private companion object {
+        const val REQUEST_NOTIFICATIONS = 1001
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -70,6 +73,23 @@ class MainActivity : FlutterActivity() {
             return
         }
         notificationResult = result
-        notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            REQUEST_NOTIFICATIONS,
+        )
+    }
+
+    /** 「接收推送」的系统弹窗结果，回给等着的 Dart 侧。 */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != REQUEST_NOTIFICATIONS) return
+        val pending = notificationResult ?: return
+        notificationResult = null
+        pending.success(grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED)
     }
 }
