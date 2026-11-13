@@ -210,7 +210,16 @@ class _AppShellState extends State<AppShell>
               children: [
                 // 缩小后四周露出来的底：只在有过缩放时画（少一层全屏模糊）。
                 // 这里不再播一遍视频壁纸，两路解码没必要。
-                if (t > 0) const AppBackgroundLayer(allowVideo: false),
+                //
+                // 必须用 Visibility 占住首位，**不能写成 `if (t > 0) ...`**：
+                // Stack 的子节点没有 key 时按「位置 + 类型」配对，在首位条件插入
+                // 会让后面的 shell 匹配失败、整棵子树重建，PageView 跟着重建并回到
+                // 第 0 页；而 `_selectedIndex` 在 AppShell 的 State 里不受影响，
+                // 结果就是「点返回回到主页、底栏还亮着设置」。
+                Visibility(
+                  visible: t > 0,
+                  child: const AppBackgroundLayer(allowVideo: false),
+                ),
                 // 先按圆角裁剪再整体缩放：视觉半径 32 * 0.8，与鸿蒙
                 // `.scale(...).borderRadius(32).clip(true)` 的属性叠加一致
                 Transform.scale(

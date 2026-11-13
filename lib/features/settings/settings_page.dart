@@ -327,8 +327,8 @@ class _SettingsPageState extends State<SettingsPage>
                   palette: palette,
                   onTap: () {
                     KanoHaptics.tap();
-                    // 与鸿蒙 `openPersonalization()` 一致：置编辑态，
-                    // 外壳收到后切回主页并把整页缩到 0.82。
+                    // 只置编辑态；外壳把**当前这一页**缩到 0.8 并叠上覆盖层，
+                    // 不切页签 —— 从设置进来，返回时还会停在设置。
                     HomeEditMode.instance.enter();
                   },
                 ),
