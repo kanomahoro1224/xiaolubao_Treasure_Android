@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../kano/data/bilibili_api.dart';
@@ -453,13 +454,13 @@ class BiliDynamicCard extends StatelessWidget {
                   ),
                 ),
               ),
-            if (item.text.isNotEmpty)
+            if (item.text.isNotEmpty || item.nodes.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  item.text,
+                child: _BiliRichText(
+                  nodes: item.nodes,
+                  fallback: item.text,
                   maxLines: 10,
-                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 14.5,
                     height: 22 / 14.5,
@@ -493,10 +494,10 @@ class BiliDynamicCard extends StatelessWidget {
                       ),
                     if (item.quoteText.isNotEmpty) ...[
                       if (item.quoteAuthor.isNotEmpty) const SizedBox(height: 4),
-                      Text(
-                        item.quoteText,
+                      _BiliRichText(
+                        nodes: item.quoteNodes,
+                        fallback: item.quoteText,
                         maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 13,
                           height: 19 / 13,
@@ -905,6 +906,83 @@ class FeedGridSkeleton extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// 动态正文：把 `rich_text_nodes` 里的表情排成图，其余按文字排。
+///
+/// B 站的 `text` 字段里表情只剩 `[xxx_xx]` 这样的占位符，直接 Text 出来就是一串
+/// 方括号；表情图是独立节点，尺寸跟着正文字号走，混排时才不会把行高撑乱。
+class _BiliRichText extends StatelessWidget {
+  const _BiliRichText({
+    required this.nodes,
+    required this.fallback,
+    required this.style,
+    required this.maxLines,
+  });
+
+  final List<BiliRichNode> nodes;
+
+  /// 节点为空时的纯文本兜底（老结构 / 解析不出节点）
+  final String fallback;
+  final TextStyle style;
+  final int maxLines;
+
+  @override
+  Widget build(BuildContext context) {
+    if (nodes.isEmpty) {
+      return Text(
+        fallback,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+        style: style,
+      );
+    }
+
+    final fontSize = style.fontSize ?? 14;
+    final spans = <InlineSpan>[];
+    for (final node in nodes) {
+      if (!node.isEmotion) {
+        spans.add(TextSpan(text: node.text));
+        continue;
+      }
+      // 普通表情约 1.4 字高，`size == 2` 的大表情翻倍；两者都留出一点边距，
+      // 否则会贴着前后文字
+      final side = fontSize * (node.large ? 2.1 : 1.4);
+      spans.add(
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: SizedBox(
+              width: side,
+              height: side,
+              // 表情图量不大但会被反复用到，走磁盘缓存别每次重下
+              child: CachedNetworkImage(
+                imageUrl: node.imageUrl,
+                fit: BoxFit.contain,
+                fadeInDuration: Duration.zero,
+                // 图挂了退回它的 alt（就是那个 `[xxx]`），至少不丢字
+                errorWidget: (_, __, ___) => Center(
+                  child: Text(
+                    node.text,
+                    maxLines: 1,
+                    overflow: TextOverflow.clip,
+                    style: style.copyWith(fontSize: fontSize * 0.8),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Text.rich(
+      TextSpan(children: spans, style: style),
+      maxLines: maxLines,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }

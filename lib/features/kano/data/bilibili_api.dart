@@ -76,6 +76,32 @@ class BiliVideoPage {
 }
 
 /// 一条动态（图文 / 转发 / 纯文字都归到这里，视频投稿不进这个列表）
+/// 动态正文的一个片段。
+///
+/// B 站把表情当成**独立节点**放在 `rich_text_nodes` 里，同时把 `[xxx]` 这种
+/// 占位符留在 `text` 字段里。只读 `text` 就只剩一堆方括号，所以正文要按节点
+/// 拼：文字节点直接排，表情节点换成图。
+class BiliRichNode {
+  const BiliRichNode.text(this.text) : imageUrl = '', large = false;
+
+  const BiliRichNode.emotion({
+    required this.text,
+    required this.imageUrl,
+    required this.large,
+  });
+
+  /// 文字内容；表情节点上是它的 alt 文本（图挂了时用来兜底）
+  final String text;
+
+  /// 非空表示这是一枚表情图
+  final String imageUrl;
+
+  /// B 站 `emoticon.size == 2` 的大表情
+  final bool large;
+
+  bool get isEmotion => imageUrl.isNotEmpty;
+}
+
 class BiliDynamicItem {
   const BiliDynamicItem({
     required this.id,
@@ -93,6 +119,8 @@ class BiliDynamicItem {
     required this.quoteAuthor,
     required this.quotePics,
     required this.isForward,
+    required this.nodes,
+    required this.quoteNodes,
   });
 
   final String id;
@@ -100,6 +128,12 @@ class BiliDynamicItem {
 
   /// 正文（转发时是转发语）
   final String text;
+
+  /// 正文的富文本节点：含表情图时优先按它渲染，为空才退回 [text]
+  final List<BiliRichNode> nodes;
+
+  /// 转发原文的富文本节点
+  final List<BiliRichNode> quoteNodes;
 
   /// opus 标题，多数为空
   final String title;
@@ -515,6 +549,81 @@ class BiliDynamicApi {
     return '';
   }
 
+  /// 正文的富文本节点。表情在 `rich_text_nodes` 里是独立节点，
+  /// `text` 字段只留 `[xxx]` 占位，所以渲染必须走这一份。
+  ///
+  /// 新结构在 `major.opus.summary.rich_text_nodes`，老结构在 `desc.rich_text_nodes`；
+  /// 两边都空时返回空列表，交给调用方退回纯文本。
+  ///
+  /// 公开是为了让测试能直接喂真实响应片段 —— 这套字段是 B 站的非公开接口，
+  /// 哪天改名了，测试会先挂，而不是等用户看到一屏方括号。
+  static List<BiliRichNode> richNodesOf(Object? node) {
+    if (node is! Map) return const [];
+    List<Object?>? raw;
+    final major = node['major'];
+    if (major is Map) {
+      final opus = major['opus'];
+      if (opus is Map) {
+        final summary = opus['summary'];
+        if (summary is Map) {
+          final nodes = summary['rich_text_nodes'];
+          if (nodes is List && nodes.isNotEmpty) raw = nodes;
+        }
+      }
+    }
+    if (raw == null) {
+      final desc = node['desc'];
+      if (desc is Map) {
+        final nodes = desc['rich_text_nodes'];
+        if (nodes is List && nodes.isNotEmpty) raw = nodes;
+      }
+    }
+    if (raw == null) return const [];
+
+    final out = <BiliRichNode>[];
+    for (final one in raw) {
+      if (one is! Map) continue;
+      final type = (one['type'] ?? '').toString();
+      final text = (one['text'] ?? '').toString();
+      // 新版 opus 用 EMOJI（图在 `emoji`），老结构用 EMOTION（图在 `emoticon`）。
+      // 两个都认，别只写文档里那个 —— 实测现在返回的全是 EMOJI。
+      if (type == 'RICH_TEXT_NODE_TYPE_EMOJI' || type == 'RICH_TEXT_NODE_TYPE_EMOTION') {
+        final emoji = one['emoji'];
+        final emoticon = one['emoticon'];
+        final meta = emoji is Map ? emoji : (emoticon is Map ? emoticon : null);
+        if (meta != null) {
+          // 三个地址各有分工：gif_url 是动图，icon_url 是静态首帧，webp_url 是静图。
+          // 优先动图（B 站原版就是动的），普通小黄脸只有 icon_url，所以必须能回退 ——
+          // 只认 gif_url 会让一大半表情变成 `[xxx]` 占位。
+          final url = _firstUrlIn(meta, const ['gif_url', 'icon_url', 'url']);
+          final alt = text.isNotEmpty ? text : (meta['text'] ?? '').toString();
+          if (url.isNotEmpty) {
+            out.add(BiliRichNode.emotion(
+              text: alt.isEmpty ? '[表情]' : alt,
+              imageUrl: url.startsWith('//') ? 'https:$url' : url,
+              // size 在 JSON 里是数字 2，但也见过字符串，统一按字符串比
+              large: '${meta['size']}' == '2',
+            ));
+            continue;
+          }
+        }
+        // 拿不到图就退化成占位文字，总比丢字好
+      }
+      if (text.isNotEmpty) out.add(BiliRichNode.text(text));
+    }
+    return List<BiliRichNode>.unmodifiable(out);
+  }
+
+  /// 按顺序取第一个非空字段。B 站同一枚表情同时给 gif / png / webp 三份地址，
+  /// 字段缺失时是空串而不是 null，所以不能只看 key 在不在。
+  static String _firstUrlIn(Map meta, List<String> keys) {
+    for (final key in keys) {
+      final value = (meta[key] ?? '').toString().trim();
+      if (value.isNotEmpty) return value;
+    }
+    return '';
+  }
+
   static List<String> _picsFrom(Object? dynamic) {
     if (dynamic is! Map) return const [];
     final major = dynamic['major'];
@@ -540,6 +649,7 @@ class BiliDynamicApi {
     final authorMap = author is Map ? author : const {};
 
     var text = _textOf(dynamic);
+    var nodes = richNodesOf(dynamic);
     var title = '';
     if (dynamic is Map) {
       final major = dynamic['major'];
@@ -586,6 +696,7 @@ class BiliDynamicApi {
     }
 
     var quoteText = '';
+    var quoteNodes = const <BiliRichNode>[];
     var quoteAuthor = '';
     var quotePics = const <String>[];
     final isForward = raw['orig'] != null;
@@ -596,11 +707,16 @@ class BiliDynamicApi {
       final origDynamic = origModulesMap['module_dynamic'];
       final origAuthor = origModulesMap['module_author'];
       quoteText = _textOf(origDynamic);
+      quoteNodes = richNodesOf(origDynamic);
       if (origAuthor is Map) quoteAuthor = (origAuthor['name'] ?? '').toString();
       quotePics = _picsFrom(origDynamic);
       // 转发时顶层常常是空的（只有转发语），图要退到原帖上，否则整张卡是空白
       if (pics.isEmpty) pics = quotePics;
-      if (text.isEmpty && quoteText.isNotEmpty) text = quoteText;
+      if (text.isEmpty && quoteText.isNotEmpty) {
+        text = quoteText;
+        // 正文退到原帖时，富文本也得跟着退，否则表情又变回方括号
+        if (nodes.isEmpty) nodes = quoteNodes;
+      }
     }
 
     return BiliDynamicItem(
@@ -619,6 +735,8 @@ class BiliDynamicApi {
       quoteAuthor: quoteAuthor,
       quotePics: quotePics,
       isForward: isForward,
+      nodes: nodes,
+      quoteNodes: quoteNodes,
     );
   }
 
