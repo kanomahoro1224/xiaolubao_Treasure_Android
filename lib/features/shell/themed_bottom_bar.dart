@@ -37,9 +37,12 @@ class ThemedBottomBar extends StatefulWidget {
   static const double iconLift = 50;
 
   /// 页签整体下移量。鸿蒙把整行上提 50，55 的图标几乎全悬在底图上方、
-  /// 离底图太远；这里把「图标 + 文字」这一整块往下靠 8，让图标多压进底图一截。
-  /// 只动页签行，底图和总高都不动，所以滚动留白不用跟着改。
-  static const double tabDrop = 8;
+  /// 离底图太远；这里把「图标 + 文字」这一整块往下靠，让图标多压进底图一截。
+  ///
+  /// 只动页签行，底图位置和 `heightFor()` 都不动，所以滚动留白、浮岛位置
+  /// 不用跟着改。页签行下沿 = `tabDrop + rowHeight`，要保证仍落在底图
+  /// （`iconLift ~ iconLift + tailHeight`，即 50~120）之内，否则文字会掉出画面。
+  static const double tabDrop = 18;
 
   /// 底边留白（鸿蒙外层 `padding bottom 12`）
   static const double bottomPad = 12;
