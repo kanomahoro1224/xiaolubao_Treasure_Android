@@ -209,10 +209,24 @@ class _FeedPageState extends State<FeedPage> with AutomaticKeepAliveClientMixin 
     final data = result.data;
     setState(() {
       _profile = data?.profile;
-      _ytVideos = data?.videos ?? const [];
+      // dashboard.videos 已经是多平台混装（服务端把 B 站视频也塞了进来），
+      // YouTube 栏必须自己剔除，否则「直播 / Videos / Shorts」里会夹着 B 站内容。
+      _ytVideos = (data?.videos ?? const <KanoVideo>[])
+          .where(_belongsToYoutube)
+          .toList(growable: false);
       _ytLoaded = true;
       _ytFailed = data == null;
     });
+  }
+
+  /// `source` 是判断视频归属平台的唯一可靠依据。
+  ///
+  /// 用白名单而不是「排除 bilibili」：以后服务端再接 twitch 之类，
+  /// 黑名单会把新平台漏进 YouTube 栏。唯一例外是空串——早期落盘的缓存里
+  /// 没有这个字段，那批数据全部来自 YouTube，丢掉会让老缓存直接变空白。
+  static bool _belongsToYoutube(KanoVideo video) {
+    final source = video.source.trim().toLowerCase();
+    return source.isEmpty || source == 'youtube';
   }
 
   /// 窗口 i = [今天-31i-30, 今天-31i+1]，仍是 31 天跨度，右边多留一天补 JST 与 UTC+8 的时差。
