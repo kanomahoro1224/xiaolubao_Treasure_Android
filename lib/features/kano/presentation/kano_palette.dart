@@ -48,6 +48,12 @@ class KanoPalette {
   Color get berry =>
       _customAccent ?? (isLight ? const Color(0xFFDC4560) : const Color(0xFFFF7088));
 
+  /// **不跟主题色**的莓色，恒定 #DC4560 / #FF7088。
+  /// 鸿蒙 `RecentPage.berryColor()` 就是这么写的，只给资料卡的 kicker 与标语用；
+  /// 跟着主题色走的话，用户选了土金色这两行就变成土金色，和鸿蒙对不上。
+  Color get berryBrand =>
+      isLight ? const Color(0xFFDC4560) : const Color(0xFFFF7088);
+
   /// 横幅缺图时的淡莓底
   Color get berryWash => isLight ? const Color(0x1ADC4560) : const Color(0x1FFF7088);
 

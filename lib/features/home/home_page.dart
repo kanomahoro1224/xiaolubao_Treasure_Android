@@ -14,6 +14,7 @@ import '../kano/presentation/kano_state.dart';
 import '../kano/presentation/kano_calendar_export.dart';
 import '../feed/kano_post_card.dart';
 import '../settings/settings_controller.dart';
+import '../shell/shell_metrics.dart';
 
 /// 个性化里的主题色。下一场的状态标、倒计时、刷新都用它，不是莓色。
 Color _kanoThemeColor() =>
@@ -109,7 +110,14 @@ class _HomePageState extends State<HomePage>
         slivers: [
           SliverToBoxAdapter(child: _header(palette)),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(KanoGap.page, 0, KanoGap.page, 24),
+            // 底栏是浮岛、`GlassScaffold` 又开着 extendBody，body 不会自动让位。
+            // 只写死 24 的话「官方账号」最后几项会压在岛下面，滑到底也就到此为止。
+            padding: EdgeInsets.fromLTRB(
+              KanoGap.page,
+              0,
+              KanoGap.page,
+              ShellMetrics.scrollBottomInset(context),
+            ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 KanoStatusBar(
@@ -271,7 +279,7 @@ class _ProfileCard extends StatelessWidget {
                             fontSize: 10.5,
                             fontWeight: FontWeight.w500,
                             letterSpacing: 1.4,
-                            color: palette.berry,
+                            color: palette.berryBrand,
                           ),
                         ),
                       ),
@@ -306,7 +314,7 @@ class _ProfileCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: palette.berry,
+                          color: palette.berryBrand,
                         ),
                       ),
                       // RecentPage.ProfileCard 不画 profile.bio。

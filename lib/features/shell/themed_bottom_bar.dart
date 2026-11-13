@@ -36,6 +36,11 @@ class ThemedBottomBar extends StatefulWidget {
   /// 图标上提量（鸿蒙 `.margin({ top: -50 })`）
   static const double iconLift = 50;
 
+  /// 页签整体下移量。鸿蒙把整行上提 50，55 的图标几乎全悬在底图上方、
+  /// 离底图太远；这里把「图标 + 文字」这一整块往下靠 8，让图标多压进底图一截。
+  /// 只动页签行，底图和总高都不动，所以滚动留白不用跟着改。
+  static const double tabDrop = 8;
+
   /// 底边留白（鸿蒙外层 `padding bottom 12`）
   static const double bottomPad = 12;
 
@@ -111,7 +116,7 @@ class _ThemedBottomBarState extends State<ThemedBottomBar> {
           Positioned(
             left: width * 0.03,
             right: width * 0.03,
-            top: 0,
+            top: ThemedBottomBar.tabDrop,
             height: ThemedBottomBar.rowHeight,
             child: Row(children: tabs),
           ),

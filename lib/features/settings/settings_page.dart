@@ -12,6 +12,19 @@ import 'credits_page.dart';
 import 'settings_controller.dart';
 import 'settings_strings.dart';
 
+/// 「接收推送」分区是否显示。
+///
+/// 现在 Android 侧只有「申请通知权限 + 存偏好」（`kano_notifications.dart` +
+/// `SettingsController.pushXxx`），**没有任何下发通道**，所以要 App 不运行时
+/// 也能收到，必须走厂商系统级推送：小米 / 华为 / OPPO / vivo 各家只覆盖自家机型，
+/// 或用个推、极光这类聚合 SDK 代理（后台仍要逐家填密钥）。FCM 在国内没有 GMS，
+/// 实际收不到。服务端也要有对应的 android 下发通道（现在 `/api/push/device`
+/// 只认 `platform: harmonyos`）。
+///
+/// 在接入推送之前先把整块藏起来，不摆一排点了没反应的开关。
+/// **谁要适配：把这里改成 true**，UI 原样回来，数据层和权限申请都没删。
+const bool kShowPushSection = false;
+
 /// 设置。
 ///
 /// 分组对齐鸿蒙设置页截图：外观（语言下拉、新版玻璃、个性化）、通知、其它。
@@ -322,70 +335,73 @@ class _SettingsPageState extends State<SettingsPage>
               ],
             ),
             const SizedBox(height: 22),
-            _Section(
-              title: KanoText.ui('settings_category_notify'),
-              palette: palette,
-              children: [
-                _DropRow(
-                  title: KanoText.ui('setting_push_enabled'),
-                  subtitle: KanoText.ui('setting_push_enabled_desc'),
-                  palette: palette,
-                  value: settings.pushEnabled ? onOff[1] : onOff[0],
-                  options: onOff,
-                  selected: settings.pushEnabled ? 1 : 0,
-                  onSelected: (index) {
-                    _onPushEnabled(index == 1);
-                  },
-                ),
-                _DropRow(
-                  title: KanoText.ui('setting_push_live'),
-                  subtitle: KanoText.ui('setting_push_live_desc'),
-                  palette: palette,
-                  value: settings.pushLive ? onOff[1] : onOff[0],
-                  options: onOff,
-                  selected: settings.pushLive ? 1 : 0,
-                  disabled: !settings.pushEnabled,
-                  onSelected: (index) => _set(() => settings.setPushLive(index == 1)),
-                ),
-                _DropRow(
-                  title: KanoText.ui('setting_push_video'),
-                  subtitle: KanoText.ui('setting_push_video_desc'),
-                  palette: palette,
-                  value: settings.pushVideo ? onOff[1] : onOff[0],
-                  options: onOff,
-                  selected: settings.pushVideo ? 1 : 0,
-                  disabled: !settings.pushEnabled,
-                  onSelected: (index) => _set(() => settings.setPushVideo(index == 1)),
-                ),
-                _DropRow(
-                  title: KanoText.ui('setting_push_post'),
-                  subtitle: KanoText.ui('setting_push_post_desc'),
-                  palette: palette,
-                  value: settings.pushPost ? onOff[1] : onOff[0],
-                  options: onOff,
-                  selected: settings.pushPost ? 1 : 0,
-                  disabled: !settings.pushEnabled,
-                  onSelected: (index) => _set(() => settings.setPushPost(index == 1)),
-                ),
-                _DropRow(
-                  title: KanoText.ui('setting_push_language'),
-                  subtitle: KanoText.ui('setting_push_language_desc'),
-                  palette: palette,
-                  value: _pushLanguageLabel(settings.pushLanguage),
-                  options: [
-                    KanoText.ui('setting_push_language_follow'),
-                    KanoText.ui('lang_zh'),
-                    KanoText.ui('lang_zh_hant'),
-                    KanoText.ui('lang_ja'),
-                    KanoText.ui('lang_en'),
-                  ],
-                  selected: settings.pushLanguage.clamp(0, 4).toInt(),
-                  disabled: !settings.pushEnabled,
-                  onSelected: (index) => _set(() => settings.setPushLanguage(index)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 22),
+            // 推送分区：默认隐藏，原因见文件顶部 kShowPushSection。
+            if (kShowPushSection) ...[
+              _Section(
+                title: KanoText.ui('settings_category_notify'),
+                palette: palette,
+                children: [
+                  _DropRow(
+                    title: KanoText.ui('setting_push_enabled'),
+                    subtitle: KanoText.ui('setting_push_enabled_desc'),
+                    palette: palette,
+                    value: settings.pushEnabled ? onOff[1] : onOff[0],
+                    options: onOff,
+                    selected: settings.pushEnabled ? 1 : 0,
+                    onSelected: (index) {
+                      _onPushEnabled(index == 1);
+                    },
+                  ),
+                  _DropRow(
+                    title: KanoText.ui('setting_push_live'),
+                    subtitle: KanoText.ui('setting_push_live_desc'),
+                    palette: palette,
+                    value: settings.pushLive ? onOff[1] : onOff[0],
+                    options: onOff,
+                    selected: settings.pushLive ? 1 : 0,
+                    disabled: !settings.pushEnabled,
+                    onSelected: (index) => _set(() => settings.setPushLive(index == 1)),
+                  ),
+                  _DropRow(
+                    title: KanoText.ui('setting_push_video'),
+                    subtitle: KanoText.ui('setting_push_video_desc'),
+                    palette: palette,
+                    value: settings.pushVideo ? onOff[1] : onOff[0],
+                    options: onOff,
+                    selected: settings.pushVideo ? 1 : 0,
+                    disabled: !settings.pushEnabled,
+                    onSelected: (index) => _set(() => settings.setPushVideo(index == 1)),
+                  ),
+                  _DropRow(
+                    title: KanoText.ui('setting_push_post'),
+                    subtitle: KanoText.ui('setting_push_post_desc'),
+                    palette: palette,
+                    value: settings.pushPost ? onOff[1] : onOff[0],
+                    options: onOff,
+                    selected: settings.pushPost ? 1 : 0,
+                    disabled: !settings.pushEnabled,
+                    onSelected: (index) => _set(() => settings.setPushPost(index == 1)),
+                  ),
+                  _DropRow(
+                    title: KanoText.ui('setting_push_language'),
+                    subtitle: KanoText.ui('setting_push_language_desc'),
+                    palette: palette,
+                    value: _pushLanguageLabel(settings.pushLanguage),
+                    options: [
+                      KanoText.ui('setting_push_language_follow'),
+                      KanoText.ui('lang_zh'),
+                      KanoText.ui('lang_zh_hant'),
+                      KanoText.ui('lang_ja'),
+                      KanoText.ui('lang_en'),
+                    ],
+                    selected: settings.pushLanguage.clamp(0, 4).toInt(),
+                    disabled: !settings.pushEnabled,
+                    onSelected: (index) => _set(() => settings.setPushLanguage(index)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 22),
+            ],
             _Section(
               title: KanoText.ui('setting_section_others'),
               palette: palette,
@@ -407,6 +423,8 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
+  // 分区隐藏后暂时没有调用点；把 kShowPushSection 改回 true 就自动重新启用。
+  // ignore: unused_element
   Future<void> _onPushEnabled(bool value) async {
     final ok = await SettingsController.instance.setPushEnabled(value);
     if (!ok && mounted) {
@@ -416,6 +434,8 @@ class _SettingsPageState extends State<SettingsPage>
     }
   }
 
+  // 同上：只服务推送分区里的语言下拉。
+  // ignore: unused_element
   String _pushLanguageLabel(int index) {
     const keys = [
       'setting_push_language_follow',

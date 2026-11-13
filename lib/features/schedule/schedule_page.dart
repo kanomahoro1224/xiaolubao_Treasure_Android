@@ -454,18 +454,38 @@ class _SchedulePageState extends State<SchedulePage>
     );
   }
 
+  /// 月历格子里的类型标签。
+  ///
+  /// 注意**不能**给 Container 挂 `alignment`：一旦挂上，Container 会按父级给的
+  /// 最大宽度撑满整列（Column 传下来的是列宽），标签就变成一条占满格子的色带，
+  /// 相邻两格的标签还会连成一片。鸿蒙那边是 `constraintSize({maxWidth:'100%'})`，
+  /// 宽度跟着文字走，超了才省略。这里同理：不给 alignment，让它自己收缩到文字宽。
+  ///
+  /// 但色块高度固定 13，Text 拿到的是紧约束，文字会贴在色块顶部画（看着偏上、
+  /// 下半截还像被切掉）。所以中间垫一层 `Align`：`widthFactor: 1` 让它收缩到
+  /// 文字宽（不会撑满整列），同时把文字在 13 里垂直居中。
   Widget _chip(String label, Color color) {
     return Container(
       height: 13,
-      constraints: const BoxConstraints(maxWidth: double.infinity),
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
-      alignment: Alignment.center,
-      child: Text(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w500, color: Colors.white, height: 1),
+      child: Align(
+        alignment: Alignment.center,
+        widthFactor: 1,
+        child: Text(
+          label,
+          maxLines: 1,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+            // 1.0 时中文的 ascent/descent 会超出 9 的行高，字形上下被压掉；
+            // 1.1 留一点余量，13 高的色块里仍有 1.5 的上下空白。
+            height: 1.1,
+          ),
+        ),
       ),
     );
   }

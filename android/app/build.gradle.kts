@@ -27,7 +27,9 @@ android {
     }
 
     defaultConfig {
-        applicationId = "kano.xiaolubao.com"
+        // 允许外部覆盖包名，用来出「可与正式包共存」的旁路包（例如包名末尾加 1）。
+        // 不传 -PappId / ORG_GRADLE_PROJECT_appId 时行为与原来完全一致。
+        applicationId = (findProperty("appId") as String?) ?: "kano.xiaolubao.com"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

@@ -15,8 +15,10 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
+        <!-- 组件名一律写全名：包名可被 -PappId 覆盖（出旁路包时用），
+             相对写法 ".MainActivity" 会被补成「新包名 + .MainActivity」，类根本不存在，一启动就崩。 -->
         <activity
-            android:name=".MainActivity"
+            android:name="kano.xiaolubao.com.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""
@@ -47,7 +49,7 @@
              一旦带了小米标识，系统就把它归类成"小米小部件"送去审核队列，未通过审核时
              小部件中心不展示、原生列表也不收录，等于完全看不到。 -->
         <receiver
-            android:name=".widget.ScheduleWidgetProvider"
+            android:name="kano.xiaolubao.com.widget.ScheduleWidgetProvider"
             android:exported="true"
             android:label="@string/widget_schedule_name">
             <intent-filter>
@@ -58,7 +60,7 @@
                 android:resource="@xml/widget_schedule_info" />
         </receiver>
         <receiver
-            android:name=".widget.BiliFansWidgetProvider"
+            android:name="kano.xiaolubao.com.widget.BiliFansWidgetProvider"
             android:exported="true"
             android:label="@string/widget_fans_name">
             <intent-filter>
@@ -78,7 +80,7 @@
              - miui.appwidget.action.APPWIDGET_UPDATE 是小米「展现刷新」入口
              - label 2~8 个汉字、不得与应用同名，也不得与第一套同名（避免被聚合） -->
         <receiver
-            android:name=".widget.ScheduleMiWidgetProvider"
+            android:name="kano.xiaolubao.com.widget.ScheduleMiWidgetProvider"
             android:exported="true"
             android:label="@string/widget_schedule_mi_name"
             android:process=":widgetProvider">
@@ -100,7 +102,7 @@
                 android:resource="@xml/widget_schedule_mi_info" />
         </receiver>
         <receiver
-            android:name=".widget.BiliFansMiWidgetProvider"
+            android:name="kano.xiaolubao.com.widget.BiliFansMiWidgetProvider"
             android:exported="true"
             android:label="@string/widget_fans_mi_name"
             android:process=":widgetProvider">

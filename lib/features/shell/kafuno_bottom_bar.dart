@@ -161,6 +161,8 @@ class _KafunoBottomBarState extends State<KafunoBottomBar> {
     final sysBottom = MediaQuery.viewPaddingOf(context).bottom;
 
     return Padding(
+      // 浮岛态保持 12：这一层是「没有激活主题」时用的玻璃底栏，
+      // 主题态的下移在 ThemedBottomBar 里单独做，别在这里动。
       padding: EdgeInsets.fromLTRB(12, 12, 12, sysBottom + 12),
       child: Center(
         child: ConstrainedBox(
