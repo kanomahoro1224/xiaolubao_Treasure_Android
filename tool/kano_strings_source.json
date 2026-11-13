@@ -15336,75 +15336,99 @@
 "en_US": "Push registration failed. Check that Push Kit is enabled for this app."
 },
 "bilibili_fans_card_desc": {
-"base": "Bilibili fans card",
+"base": "B站粉丝卡片",
 "zh_Hant": "B站粉絲卡片",
 "ja_JP": "Bilibiliファンカード",
 "en_US": "Bilibili fans card"
 },
 "fans_card_caption_followers": {
-"base": "Current followers",
+"base": "当前粉丝数",
 "zh_Hant": "當前粉絲數",
 "ja_JP": "現在のフォロワー数",
 "en_US": "Current followers"
 },
 "fans_card_likes_label": {
-"base": "Likes",
+"base": "获赞",
 "zh_Hant": "獲讚",
 "ja_JP": "獲得いいね",
 "en_US": "Likes"
 },
 "fans_card_updated_label": {
-"base": "Updated",
+"base": "最后更新",
 "zh_Hant": "最後更新",
 "ja_JP": "最終更新",
 "en_US": "Updated"
 },
 "fans_card_load_failed": {
-"base": "Failed to load data",
+"base": "获取数据失败",
 "zh_Hant": "獲取數據失敗",
 "ja_JP": "データの取得に失敗しました",
 "en_US": "Failed to load data"
 },
 "fans_card_loading": {
-"base": "Loading",
+"base": "加载中",
 "zh_Hant": "載入中",
 "ja_JP": "読み込み中",
 "en_US": "Loading"
 },
 "schedule_card_desc": {
-"base": "Kano schedule",
+"base": "鹿乃日程表",
 "zh_Hant": "鹿乃日程表",
 "ja_JP": "鹿乃の予定",
 "en_US": "Kano schedule"
 },
 "schedule_card_upcoming": {
-"base": "Upcoming",
+"base": "即将开始",
 "zh_Hant": "即將開始",
 "ja_JP": "直近の予定",
 "en_US": "Upcoming"
 },
 "schedule_card_empty": {
-"base": "No upcoming events",
+"base": "暂无即将开始的日程",
 "zh_Hant": "目前沒有即將開始的日程",
 "ja_JP": "予定はありません",
 "en_US": "No upcoming events"
 },
 "schedule_card_loading": {
-"base": "Loading...",
+"base": "加载中…",
 "zh_Hant": "載入中…",
 "ja_JP": "読み込み中…",
 "en_US": "Loading..."
 },
 "schedule_card_error": {
-"base": "Schedule server unreachable",
+"base": "连不上日程服务器",
 "zh_Hant": "無法連接日程伺服器",
 "ja_JP": "予定サーバーに接続できません",
 "en_US": "Schedule server unreachable"
 },
 "schedule_card_today": {
-"base": "Today",
+"base": "今天",
 "zh_Hant": "今天",
 "ja_JP": "今日",
 "en_US": "Today"
+},
+"update_title": {
+"base": "发现新版本",
+"zh_Hant": "發現新版本",
+"ja_JP": "新しいバージョンがあります",
+"en_US": "Update available"
+},
+"update_go": {
+"base": "前往下载",
+"zh_Hant": "前往下載",
+"ja_JP": "ダウンロードへ",
+"en_US": "Download"
+},
+"update_later": {
+"base": "下次再说",
+"zh_Hant": "下次再說",
+"ja_JP": "あとで",
+"en_US": "Not now"
+},
+"update_ignore": {
+"base": "忽略此版本",
+"zh_Hant": "忽略此版本",
+"ja_JP": "このバージョンを飛ばす",
+"en_US": "Skip this version"
 }
 }

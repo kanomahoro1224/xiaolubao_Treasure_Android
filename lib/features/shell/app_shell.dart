@@ -7,6 +7,8 @@ import '../kano/data/kano_theme.dart';
 import '../kano/presentation/kano_glass_backdrop.dart';
 import '../kano/presentation/kano_motion.dart';
 import '../settings/settings_controller.dart';
+import '../update/app_update.dart';
+import '../update/app_update_dialog.dart';
 import '../widget/widget_snapshot.dart';
 import 'app_background_layer.dart';
 import 'kafuno_bottom_bar.dart';
@@ -61,6 +63,22 @@ class _AppShellState extends State<AppShell>
     _overlayMounted = _editing;
     if (_editing) _editController.value = 1;
     HomeEditMode.instance.addListener(_onEditModeChanged);
+    // 等首帧渲染完再查版本：别跟首屏抢带宽，也别让弹窗盖在还在加载的页面上。
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdate());
+  }
+
+  /// 一次启动最多弹一次；「下次再说」就是这个语义，不写盘。
+  bool _updatePrompted = false;
+
+  Future<void> _checkForUpdate() async {
+    if (_updatePrompted) return;
+    _updatePrompted = true;
+    await Future<void>.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    final release = await AppUpdate.pending();
+    if (!mounted || release == null) return;
+    final action = await showAppUpdateDialog(context, release);
+    await applyAppUpdateAction(action, release);
   }
 
   @override

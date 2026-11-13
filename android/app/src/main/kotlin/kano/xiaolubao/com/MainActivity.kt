@@ -53,6 +53,29 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        // 更新检查要拿 APK 里真实的 versionCode：Dart 侧的 AppInfo.build 是手写常量，
+        // 一旦忘了跟着 pubspec 改，比对结果就会永远「有待更新」或永远收不到提示。
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "kano/app")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "version" -> result.success(installedVersion())
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    private fun installedVersion(): Map<String, Any> {
+        val info = packageManager.getPackageInfo(packageName, 0)
+        val code = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            info.longVersionCode.toInt()
+        } else {
+            @Suppress("DEPRECATION")
+            info.versionCode
+        }
+        return mapOf(
+            "versionCode" to code,
+            "versionName" to (info.versionName ?: ""),
+        )
     }
 
     private fun ensureNotifications(result: MethodChannel.Result) {

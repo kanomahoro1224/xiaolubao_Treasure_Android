@@ -6,7 +6,13 @@ class AppInfo {
   const AppInfo._();
 
   static const name = '小鹿包们的宝物';
-  static const packageId = 'kano.xiaolubao.com';
+
+  /// 「关于」页展示的包名。出旁路包（包名结尾加 1）时用
+  /// `--dart-define=APP_PACKAGE_ID=kano.xiaolubao.com1` 覆盖，避免页面写着旧包名。
+  static const packageId = String.fromEnvironment(
+    'APP_PACKAGE_ID',
+    defaultValue: 'kano.xiaolubao.com',
+  );
   static const version = '0.1.0';
   static const build = 1;
 
