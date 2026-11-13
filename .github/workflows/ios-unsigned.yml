@@ -1,0 +1,61 @@
+name: iOS 未签名 IPA
+
+# Windows 上没法编 iOS（要 Xcode），所以借 GitHub 的 macOS runner 出包。
+# 产物是**未签名**的 ipa：不能直接点开安装，要用 Sideloadly / AltStore
+# 之类工具拿 Apple ID 重签（免费账号 7 天有效）。
+on:
+  workflow_dispatch:
+    inputs:
+      flutter_version:
+        description: Flutter 版本
+        required: false
+        default: 3.44.1
+  push:
+    tags:
+      - 'ios-*'
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: 取代码
+        uses: actions/checkout@v4
+
+      - name: 装 Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          # push tag 触发时 inputs 是空的，回退到固定版本
+          flutter-version: ${{ github.event.inputs.flutter_version || '3.44.1' }}
+          channel: stable
+          cache: true
+
+      - name: 解析依赖
+        run: flutter pub get
+
+      - name: 编译（跳过签名）
+        run: flutter build ios --release --no-codesign
+
+      - name: 装进 Payload 打成 ipa
+        run: |
+          set -euo pipefail
+          APP="build/ios/iphoneos/Runner.app"
+          if [ ! -d "$APP" ]; then
+            echo "::error::没找到 $APP，编译产物缺失"
+            ls -R build/ios | head -50
+            exit 1
+          fi
+          rm -rf build/ios/Payload build/ios/unsigned.ipa
+          mkdir -p build/ios/Payload
+          cp -R "$APP" build/ios/Payload/Runner.app
+          # ipa 本质就是「Payload/Runner.app」的 zip，扩展名改成 .ipa
+          (cd build/ios && zip -qry unsigned.ipa Payload)
+          ls -lh build/ios/unsigned.ipa
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: kano-ios-unsigned-${{ github.run_number }}
+          path: build/ios/unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
