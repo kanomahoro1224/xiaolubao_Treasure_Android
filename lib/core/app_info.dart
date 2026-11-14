@@ -13,12 +13,12 @@ class AppInfo {
     'APP_PACKAGE_ID',
     defaultValue: 'kano.xiaolubao.com',
   );
-  static const version = '1.0.2';
+  static const version = '1.0.3';
 
   /// Android versionCode。跟鸿蒙 `AppScope/app.json5` 的 `versionCode` 同值
-  /// （鸿蒙用 `主*1000000 + 次*1000 + 修订` 的 7 位编法，1.0.2 → 1000002），
+  /// （鸿蒙用 `主*1000000 + 次*1000 + 修订` 的 7 位编法，1.0.3 → 1000003），
   /// 两端发版时一起改，更新检查才比得出先后。
-  static const build = 1000002;
+  static const build = 1000003;
 
   /// 主页 / 数据来源
   static const homeUrl = 'https://xiaolubao.com';

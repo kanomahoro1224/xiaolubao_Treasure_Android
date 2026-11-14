@@ -51,3 +51,9 @@ build.log
 test.log
 *.log
 /_incoming_asasfans_20261106/
+
+# 本地构建产物 / 临时目录，不进版本库
+*.apk
+*.ipa
+.tmp/
+build.log
