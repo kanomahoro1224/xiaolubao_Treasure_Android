@@ -33,6 +33,23 @@ class AppRelease {
   bool get hasDownload => downloadUrl.isNotEmpty;
   bool get forced => versionCode > 0 && minSupportedCode >= versionCode;
 
+  /// 更新跳转**统一**走分发站，不跟 json 里那个地址跑。
+  ///
+  /// 起因：json 里 android 那条给了网盘（`pan.xiaolubao.com`）、ios 那条给了
+  /// GitHub Releases。同一个弹窗，点下去落到三个不同的地方，用户还得自己判断
+  /// 下载的是哪个版本；网盘那边一旦没跟着更新，就变成「提示有新版本 → 下完还是老的」。
+  ///
+  /// 规则很简单：
+  /// - json 里已经是 `dl.xiaolubao.com` 下的具体文件 → 照用（以后分平台放包时不用改代码）
+  /// - 其它任何域名（网盘、GitHub、临时图床）→ 收敛到站点首页，让用户自己挑平台
+  static const downloadSite = 'https://dl.xiaolubao.com';
+
+  Uri get downloadUri {
+    final uri = Uri.tryParse(downloadUrl);
+    if (uri != null && uri.hasScheme && uri.host == 'dl.xiaolubao.com') return uri;
+    return Uri.parse(downloadSite);
+  }
+
   /// 只认分发站这一种结构：`platforms.android` 下面才是这台机器要的版本。
   ///
   /// 分发站那份还带 `package` 字段，理论上能校验包名是否对得上；这里不做——

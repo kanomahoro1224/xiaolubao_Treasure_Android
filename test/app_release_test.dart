@@ -121,6 +121,46 @@ void main() {
     });
   });
 
+  group('跳转链接统一走分发站', () {
+    final release = AppRelease.fromJson(jsonDecode(_siteJson))!;
+
+    test('json 里给的是网盘地址 → 收敛到站点首页', () {
+      expect(release.downloadUrl, startsWith('https://pan.xiaolubao.com'));
+      expect(release.downloadUri.toString(), 'https://dl.xiaolubao.com');
+    });
+
+    test('GitHub Releases 也一样收敛，不按平台分流', () {
+      final ios = AppRelease.fromJson(jsonDecode(_siteJson), platform: 'ios')!;
+      expect(ios.downloadUrl, contains('github.com'));
+      expect(ios.downloadUri.toString(), 'https://dl.xiaolubao.com');
+    });
+
+    test('已经是分发站下的具体文件就照用，方便以后分平台放包', () {
+      final r = AppRelease.fromJson({
+        'platforms': {
+          'android': {
+            'versionCode': 1000004,
+            'downloadUrl': 'https://dl.xiaolubao.com/android/xiaolubao-1.0.4.apk',
+          },
+        },
+      });
+      expect(r!.downloadUri.toString(),
+          'https://dl.xiaolubao.com/android/xiaolubao-1.0.4.apk');
+    });
+
+    test('冒充域名不放行（dl.xiaolubao.com.evil.com）', () {
+      final r = AppRelease.fromJson({
+        'platforms': {
+          'android': {
+            'versionCode': 1000004,
+            'downloadUrl': 'https://dl.xiaolubao.com.evil.com/a.apk',
+          },
+        },
+      });
+      expect(r!.downloadUri.toString(), 'https://dl.xiaolubao.com');
+    });
+  });
+
   test('缓存往返后字段不丢，否则「下次再说」下次重启就弹不出来', () {
     final first = AppRelease.fromJson(jsonDecode(_siteJson))!;
     final again = AppRelease.fromJson(jsonDecode(jsonEncode(first.toJson())));

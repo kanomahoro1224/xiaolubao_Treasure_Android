@@ -108,8 +108,8 @@ Future<void> applyAppUpdateAction(AppUpdateAction? action, AppRelease release) a
     case AppUpdateAction.ignore:
       await AppUpdate.ignore(release.versionCode);
     case AppUpdateAction.download:
-      final uri = Uri.tryParse(release.downloadUrl);
-      if (uri == null) return;
+      // 统一跳分发站：内部已把网盘 / GitHub 之类的地址收敛掉，见 AppRelease.downloadUri
+      final uri = release.downloadUri;
       try {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } catch (_) {
