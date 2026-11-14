@@ -5,13 +5,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 
 import '../kano/data/kano_cache.dart';
-import '../kano/domain/kano_server.dart';
 import '../../core/app_info.dart';
 
-/// 服务端下发的一条最新版本记录（`GET /api/app/release?platform=android`）。
+/// 分发站 `dl.xiaolubao.com/latest.json` 里 android 那一条。
 ///
 /// 下载地址**只能**来自这里：客户端不写死任何 apk / 网盘链接，换分发方式时
-/// 只改服务端配置，装出去的旧版本不用跟着发版。
+/// 只改那个 json，装出去的旧版本不用跟着发版。
 class AppRelease {
   const AppRelease({
     required this.versionCode,
@@ -34,27 +33,45 @@ class AppRelease {
   bool get hasDownload => downloadUrl.isNotEmpty;
   bool get forced => versionCode > 0 && minSupportedCode >= versionCode;
 
-  static AppRelease? fromJson(Object? raw) {
+  /// 只认分发站这一种结构：`platforms.android` 下面才是这台机器要的版本。
+  ///
+  /// 分发站那份还带 `package` 字段，理论上能校验包名是否对得上；这里不做——
+  /// 客户端本来就只认 `kano.xiaolubao.com`（见 [AppUpdate.pending] 的包名判断），
+  /// 再加一层校验只会让「json 配错」变成「静默不弹」，更难排查。
+  static AppRelease? fromJson(Object? raw, {String platform = 'android'}) {
     if (raw is! Map) return null;
-    final code = (raw['versionCode'] as num?)?.toInt();
+    final platforms = raw['platforms'];
+    if (platforms is! Map) return null;
+    final body = platforms[platform];
+    if (body is! Map) return null;
+    final code = (body['versionCode'] as num?)?.toInt();
     if (code == null || code <= 0) return null;
-    final url = (raw['downloadUrl'] as String?)?.trim() ?? '';
+    final url = (body['downloadUrl'] as String?)?.trim() ?? '';
     if (url.isEmpty) return null;
     return AppRelease(
       versionCode: code,
-      versionName: (raw['versionName'] as String?)?.trim() ?? '',
-      minSupportedCode: (raw['minSupportedCode'] as num?)?.toInt() ?? 0,
+      versionName: (body['versionName'] as String?)?.trim() ?? '',
+      minSupportedCode: (body['minSupportedCode'] as num?)?.toInt() ?? 0,
       downloadUrl: url,
-      notes: (raw['notes'] as String?)?.trim() ?? '',
+      notes: (body['notes'] as String?)?.trim() ?? '',
     );
   }
 
+  /// 缓存格式 = 网络格式切下来的一条。
+  ///
+  /// 故意不另定义一套扁平结构：一旦缓存格式和 json 格式分叉，就得多写一个解析器，
+  /// 「存进去能读出来」这件事就永远有两份逻辑要同步。现在 `_decode` 直接走同一个
+  /// [fromJson]，round-trip 是恒等的。
   Map<String, Object?> toJson() => {
-        'versionCode': versionCode,
-        'versionName': versionName,
-        'minSupportedCode': minSupportedCode,
-        'downloadUrl': downloadUrl,
-        'notes': notes,
+        'platforms': {
+          'android': {
+            'versionCode': versionCode,
+            'versionName': versionName,
+            'minSupportedCode': minSupportedCode,
+            'downloadUrl': downloadUrl,
+            'notes': notes,
+          },
+        },
       };
 }
 
@@ -148,9 +165,15 @@ class AppUpdate {
     }
   }
 
+  /// 版本公告源：分发站的静态 JSON，唯一来源。
+  ///
+  /// `--dart-define=APP_RELEASE_URL=...` 只是给测试用的逃生门，正式包不带。
+  /// 更新链挂在独立域名上，主站换机、换框架、换域名都不影响它。
+  static const _defaultUrl = 'https://dl.xiaolubao.com/latest.json';
+  static const _overrideUrl = String.fromEnvironment('APP_RELEASE_URL');
+
   static Future<AppRelease?> _fetch() async {
-    // 固定打官方主站：设置页允许填自建实例，那台服务器不会部署这个接口。
-    final url = '${KanoServer.defaultBase}/api/app/release?platform=android';
+    final url = _overrideUrl.isNotEmpty ? _overrideUrl : _defaultUrl;
     try {
       final response = await _dio.get<String>(url);
       if (response.statusCode != 200) return null;
